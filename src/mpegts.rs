@@ -185,7 +185,7 @@ pub struct SpliceDuration {
 pub struct Scte35SectionProcessor {
 
 }
-impl psi::SectionProcessor for Scte35SectionProcessor {
+impl psi::SectionProcessor<demultiplex::FilterChangeset> for Scte35SectionProcessor {
     fn process(&mut self, header: &psi::SectionCommonHeader, section_data: &[u8]) -> Option<demultiplex::FilterChangeset> {
         if header.table_id == 0xfc {
             if section_data.len() < SpliceInfoHeader::HEADER_LENGTH + 4 {
