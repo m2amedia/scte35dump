@@ -15,7 +15,6 @@ use std::fs::File;
 use std::io::Read;
 use std::net::Ipv4Addr;
 use net2::unix::UnixUdpBuilderExt;
-use mpeg2ts_reader::packet;
 use mpeg2ts_reader::psi::SectionProcessor;
 
 mod mpegts;
@@ -34,8 +33,7 @@ fn net2_main(cmd: &cli::NetCmd) {
     }
     let mut buf = Vec::new();
     buf.resize(9000, 0);
-    let demux = mpegts::create_demux();
-    let mut parser = packet::Unpack::new(demux);
+    let mut demux = mpegts::create_demux();
     loop {
         match sock.recv_from(&mut buf[..]) {
             Ok( (size, addr) ) => {
@@ -43,7 +41,7 @@ fn net2_main(cmd: &cli::NetCmd) {
                 match rtp {
                     Ok(rtp) => {
                         //println!("got a packet from {:?}, seq {}", addr, rtp.sequence_number());
-                        parser.push(rtp.payload());
+                        demux.push(rtp.payload());
                     },
                     Err(e) => {
                         println!("rtp error from {:?}: {:?}", addr, e);
@@ -61,13 +59,12 @@ fn net2_main(cmd: &cli::NetCmd) {
 fn file_main(cmd: &cli::FileCmd) -> Result<(), std::io::Error> {
     let mut f = File::open(&cmd.name).expect(&format!("Problem reading {}", cmd.name));
     let mut buf = [0u8; 188*1024];
-    let demux = mpegts::create_demux();
-    let mut parser = packet::Unpack::new(demux);
+    let mut demux = mpegts::create_demux();
     loop {
         match f.read(&mut buf[..])? {
             0 => break,
             // TODO: if not all bytes are consumed, track buf remainder
-            n => parser.push(&buf[0..n]),
+            n => demux.push(&buf[0..n]),
         }
     }
     Ok(())

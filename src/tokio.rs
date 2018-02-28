@@ -6,7 +6,6 @@ use futures::stream;
 use futures::future;
 use std::net::Ipv4Addr;
 use std::io;
-use mpeg2ts_reader::packet;
 use rtp_rs;
 use mpegts;
 
@@ -35,13 +34,12 @@ fn tokio_main() {
     let iface = Ipv4Addr::new(0,0,0,0);
     socket.join_multicast_v4(&group, &iface).expect("failed to join multicast group");
 
-    let demux = mpegts::create_demux();
-    let mut parser = packet::Unpack::new(demux);
+    let mut demux = mpegts::create_demux();
     let recv = for_each_rtp(socket, move |rtp, addr| {
         match rtp {
             Ok(rtp) => {
                 //println!("got a packet from {:?}, seq {}", addr, rtp.sequence_number());
-                parser.push(rtp.payload());
+                demux.push(rtp.payload());
             },
             Err(e) => {
                 println!("rtp error from {:?}: {:?}", addr, e);
