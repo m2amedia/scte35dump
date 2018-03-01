@@ -1,6 +1,15 @@
 # scte35dump
 Dump [SCTE-35](http://www.scte.org/SCTEDocs/Standards/SCTE%2035%202016.pdf) data from a Transport Stream contained within a file or RTP network stream
 
+## SCTE-35 spec coverage
+
+Not all commands are currently implemented:
+ - [x] `splice_null()`
+ - [ ] `splice_schedule()`
+ - [x] `splice_insert()`
+ - [ ] `time_signal()`
+ - [ ] `bandwidth_reservation()`
+ - [ ] `private_command()`
 
 # Examples
 
