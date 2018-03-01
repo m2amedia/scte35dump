@@ -1,26 +1,7 @@
 # scte35dump
 Dump [SCTE-35](http://www.scte.org/SCTEDocs/Standards/SCTE%2035%202016.pdf) data from a Transport Stream contained within a file or RTP network stream
 
-## SCTE-35 spec coverage
-
-Not all commands are currently implemented:
- - [x] `splice_null()`
- - [ ] `splice_schedule()`
- - [x] `splice_insert()`
- - [ ] `time_signal()`
- - [ ] `bandwidth_reservation()`
- - [ ] `private_command()`
-
-# Examples
-
-## Get help
-
 ```
-$ scte35dump 
-scte35dump 
-David Holroyd
-Extract SCTE-35 information from MPEG Transport Streams
-
 USAGE:
     scte35dump [SUBCOMMAND]
 
@@ -34,6 +15,18 @@ SUBCOMMANDS:
     net        Read an RTP-encapsulated transport stream from the network
     section    Decode a single splice_info section value given on the command line
 ```
+
+## SCTE-35 spec coverage
+
+Not all commands are currently implemented:
+ - [x] `splice_null()`
+ - [ ] `splice_schedule()`
+ - [x] `splice_insert()`
+ - [ ] `time_signal()`
+ - [ ] `bandwidth_reservation()`
+ - [ ] `private_command()`
+
+# Examples
 
 ## The `file` subcommand
 
