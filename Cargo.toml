@@ -2,6 +2,9 @@
 name = "scte35dump"
 version = "0.1.0"
 authors = ["David Holroyd <dave@badgers-in-foil.co.uk>"]
+description = "Dump SCTE-35 data from a Transport Stream contained within a file or RTP network stream"
+repository = "https://github.com/dholroyd/scte53dump"
+categories = [ "multimedia::video" ]
 
 [dependencies]
 hexdump = "0.1.0"
@@ -16,4 +19,5 @@ hex = "0.3.1"
 base64 = "0.9.0"
 
 [profile.release]
+# for profiling,
 debug = true
