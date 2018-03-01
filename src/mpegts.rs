@@ -326,9 +326,9 @@ impl Default for Scte53StreamConsumer {
 }
 impl Scte53StreamConsumer {
     fn construct(stream_info: &demultiplex::StreamInfo) -> Box<cell::RefCell<demultiplex::PacketFilter>> {
-        for d in stream_info.descriptors.iter() {
-            println!("scte35 descriptor {:?}", d);
-        }
+        //for d in stream_info.descriptors() {
+        //    println!("scte35 descriptor {:?}", d);
+        //}
         let consumer = Scte53StreamConsumer::default();
         Box::new(cell::RefCell::new(consumer))
     }
