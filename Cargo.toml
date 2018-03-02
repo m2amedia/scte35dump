@@ -5,6 +5,8 @@ authors = ["David Holroyd <dave@badgers-in-foil.co.uk>"]
 description = "Dump SCTE-35 data from a Transport Stream contained within a file or RTP network stream"
 repository = "https://github.com/dholroyd/scte53dump"
 categories = [ "multimedia::video" ]
+readme = "README.md"
+license = "MIT/Apache-2.0"
 
 [dependencies]
 hexdump = "0.1.0"
