@@ -203,9 +203,9 @@ impl psi::SectionProcessor<demultiplex::FilterChangeset> for Scte35SectionProces
                 _ => None,
             };
             if let Some(splice_command) = splice_command {
-                println!("scte53: got command {:#?}", splice_command);
+                println!("scte35: got command {:#?}", splice_command);
             } else {
-                println!("scte53: unhandled command {:?}", splice_header.splice_command_type());
+                println!("scte35: unhandled command {:?}", splice_header.splice_command_type());
             }
         } else {
             println!("bad table_id for scte35: {:#x} (expected 0xfc)", header.table_id);
@@ -314,26 +314,26 @@ impl Scte35SectionProcessor {
     }
 }
 
-struct Scte53StreamConsumer {
+struct Scte35StreamConsumer {
     section: psi::SectionPacketConsumer,
 }
-impl Default for Scte53StreamConsumer {
+impl Default for Scte35StreamConsumer {
     fn default() -> Self {
-        Scte53StreamConsumer {
+        Scte35StreamConsumer {
             section: psi::SectionPacketConsumer::new(Scte35SectionProcessor { })
         }
     }
 }
-impl Scte53StreamConsumer {
+impl Scte35StreamConsumer {
     fn construct(stream_info: &demultiplex::StreamInfo) -> Box<cell::RefCell<demultiplex::PacketFilter>> {
         //for d in stream_info.descriptors() {
         //    println!("scte35 descriptor {:?}", d);
         //}
-        let consumer = Scte53StreamConsumer::default();
+        let consumer = Scte35StreamConsumer::default();
         Box::new(cell::RefCell::new(consumer))
     }
 }
-impl packet::PacketConsumer<demultiplex::FilterChangeset> for Scte53StreamConsumer {
+impl packet::PacketConsumer<demultiplex::FilterChangeset> for Scte35StreamConsumer {
     fn consume(&mut self, pk: packet::Packet) -> Option<demultiplex::FilterChangeset> {
         self.section.consume(pk);
         None
@@ -344,7 +344,7 @@ pub fn create_demux() -> demultiplex::Demultiplex {
     let mut table: HashMap<StreamType, fn(&demultiplex::StreamInfo)->Box<cell::RefCell<demultiplex::PacketFilter>>>
     = HashMap::new();
 
-    table.insert(StreamType::Private(0x86), Scte53StreamConsumer::construct);
+    table.insert(StreamType::Private(0x86), Scte35StreamConsumer::construct);
     let ctor = demultiplex::StreamConstructor::new(demultiplex::NullPacketFilter::construct, table);
     demultiplex::Demultiplex::new(ctor)
 }
