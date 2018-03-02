@@ -1,9 +1,8 @@
 use std::net::SocketAddr;
-use tokio_core::net::{UdpSocket, UdpCodec};
+use tokio_core::net::UdpSocket;
 use tokio_core::reactor::Core;
 use futures::{Future, Stream};
 use futures::stream;
-use futures::future;
 use std::net::Ipv4Addr;
 use std::io;
 use rtp_rs;

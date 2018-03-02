@@ -82,7 +82,7 @@ impl<'a> SpliceInfoHeader<'a> {
         EncryptionAlgorithm::from_id((self.buf[1] & 0b0111_1110) >> 1)
     }
     pub fn pts_adjustment(&self) -> u64 {
-        u64::from((self.buf[1] & 1)) << 32
+        u64::from(self.buf[1] & 1) << 32
         |u64::from(self.buf[2]) << 24
         |u64::from(self.buf[3]) << 16
         |u64::from(self.buf[4]) << 8
@@ -96,7 +96,7 @@ impl<'a> SpliceInfoHeader<'a> {
         |u16::from(self.buf[8]) >> 4
     }
     pub fn splice_command_length(&self) -> u16 {
-        u16::from((self.buf[8] & 0b00001111)) << 8
+        u16::from(self.buf[8] & 0b00001111) << 8
         |u16::from(self.buf[9])
     }
     pub fn splice_command_type(&self) -> SpliceCommandType {

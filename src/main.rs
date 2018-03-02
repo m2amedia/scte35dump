@@ -13,8 +13,6 @@ extern crate hex;
 
 use std::fs::File;
 use std::io::Read;
-use std::net::Ipv4Addr;
-use net2::unix::UnixUdpBuilderExt;
 use mpeg2ts_reader::psi::SectionProcessor;
 
 mod mpegts;
@@ -26,8 +24,6 @@ fn net2_main(cmd: &cli::NetCmd) {
     let udp = net2::UdpBuilder::new_v4().unwrap();
     udp.reuse_address(true).unwrap();
     let sock = udp.bind(cmd.addr).expect("failed to bind socket");
-    let group = Ipv4Addr::new(234,10,10,45);
-    let iface = Ipv4Addr::new(192,168,20,11);
     if let Some(ref group) = cmd.group {
         sock.join_multicast_v4(&group.addr, &group.ifaddr).expect("failed to join multicast group");
     }
