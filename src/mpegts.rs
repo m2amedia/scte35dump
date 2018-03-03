@@ -6,6 +6,7 @@ use mpeg2ts_reader::StreamType;
 use std::collections::HashMap;
 use hexdump;
 use bitreader;
+use std::fmt;
 
 #[derive(Debug)]
 enum EncryptionAlgorithm {
@@ -101,6 +102,17 @@ impl<'a> SpliceInfoHeader<'a> {
     }
     pub fn splice_command_type(&self) -> SpliceCommandType {
         SpliceCommandType::from_id(self.buf[10])
+    }
+}
+impl<'a> fmt::Debug for SpliceInfoHeader<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(),fmt::Error> {
+        write!(f, "SpliceInfoHeader {{ protocol_version: {:?}, encrypted_packet: {:?}, encryption_algorithm: {:?}, pts_adjustment: {:?}, cw_index: {:?}, tier: {:?} }}",
+               self.protocol_version(),
+               self.encrypted_packet(),
+               self.encryption_algorithm(),
+               self.pts_adjustment(),
+               self.cw_index(),
+               self.tier())
     }
 }
 
@@ -202,10 +214,11 @@ impl psi::SectionProcessor<demultiplex::FilterChangeset> for Scte35SectionProces
                 SpliceCommandType::SpliceInsert => Some(Self::splice_insert(&splice_header, payload, descriptors)),
                 _ => None,
             };
+            println!("scte35: {:#?}", splice_header);
             if let Some(splice_command) = splice_command {
-                println!("scte35: got command {:#?}", splice_command);
+                println!("{:#?}", splice_command);
             } else {
-                println!("scte35: unhandled command {:?}", splice_header.splice_command_type());
+                println!("unhandled command {:?}", splice_header.splice_command_type());
             }
         } else {
             println!("bad table_id for scte35: {:#x} (expected 0xfc)", header.table_id);
@@ -348,4 +361,3 @@ pub fn create_demux() -> demultiplex::Demultiplex {
     let ctor = demultiplex::StreamConstructor::new(demultiplex::NullPacketFilter::construct, table);
     demultiplex::Demultiplex::new(ctor)
 }
-
