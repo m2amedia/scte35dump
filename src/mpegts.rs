@@ -4,9 +4,6 @@ use mpeg2ts_reader::packet;
 use mpeg2ts_reader::psi;
 use mpeg2ts_reader::StreamType;
 use std::collections::HashMap;
-use hexdump;
-use bitreader;
-use std::fmt;
 use scte35_reader;
 
 pub struct DumpSpliceInfoProcessor;
