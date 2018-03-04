@@ -10,6 +10,7 @@ extern crate net2;
 extern crate clap;
 extern crate base64;
 extern crate hex;
+extern crate scte35_reader;
 
 use std::fs::File;
 use std::io::Read;
@@ -73,7 +74,7 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
         cli::SectEncoding::Hex => hex::decode(cmd.value.as_bytes()).map_err(|e| format!("hex decoding problem: {:?}", e))?,
     };
     let mut parser = mpeg2ts_reader::psi::SectionParser::new(|header, buf| {
-        mpegts::Scte35SectionProcessor{}.process(header, buf)
+        scte35_reader::Scte35SectionProcessor::new(mpegts::DumpSpliceInfoProcessor).process(header, buf)
     });
     parser.begin_new_section(&data[..]);
     Ok(())
