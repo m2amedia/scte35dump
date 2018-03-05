@@ -51,16 +51,14 @@ new table for pid 4096, program 1
 new PMT entry PID 256 (in program_number 1)
 new PMT entry PID 264 (in program_number 1)
 new PMT entry PID 1500 (in program_number 1)
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-|00000001 7f7f7e00 a4cb8000 010000|   ......~........  00000000
-                                                       0000000f
-scte53: got command SpliceInsert {
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceInsert {
     splice_event_id: 1,
     reserved: 127,
     splice_detail: Insert {
@@ -79,12 +77,12 @@ scte53: got command SpliceInsert {
         avails_expected: 0
     }
 }
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
-scte53: got command SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 0 } SpliceNull
 ```
 
 ## The `section` subcommand
@@ -93,10 +91,7 @@ Dump a base64-encoded section string passed as a command-line argument
 
 ```
 $ scte35dump section --base64 "/DAlAAAAAAAAAP/wFAUAAAABf+/+LRQrAP4BI9MIAAEBAQAAfxV6SQ=="
-|00000001 7feffe2d 142b00fe 0123d308| .......-.+...#.. 00000000
-|00010101|                            ....             00000010
-                                                       00000014
-scte53: got command SpliceInsert {
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 4095 } SpliceInsert {
     splice_event_id: 1,
     reserved: 127,
     splice_detail: Insert {
@@ -125,10 +120,7 @@ Dump a hexidecimal-encoded section string passed as a command-line argument
 
 ```
 $ scte35dump section --hex "fc302500000000000000fff01405000000017feffe2d142b00fe0123d3080001010100007f157a49"
-|00000001 7feffe2d 142b00fe 0123d308| .......-.+...#.. 00000000
-|00010101|                            ....             00000010
-                                                       00000014
-scte53: got command SpliceInsert {
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 4095 } SpliceInsert {
     splice_event_id: 1,
     reserved: 127,
     splice_detail: Insert {
