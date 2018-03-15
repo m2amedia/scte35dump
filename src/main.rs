@@ -20,6 +20,7 @@ mod mpegts;
 mod tokio;
 mod cli;
 
+use mpeg2ts_reader::psi;
 
 fn net2_main(cmd: &cli::NetCmd) {
     let udp = net2::UdpBuilder::new_v4().unwrap();
@@ -31,12 +32,20 @@ fn net2_main(cmd: &cli::NetCmd) {
     let mut buf = Vec::new();
     buf.resize(9000, 0);
     let mut demux = mpegts::create_demux();
+    let mut expected = None;
     loop {
         match sock.recv_from(&mut buf[..]) {
             Ok( (size, addr) ) => {
                 let rtp = rtp_rs::RtpReader::new(&buf[..size]);
                 match rtp {
                     Ok(rtp) => {
+                        let this_seq = rtp.sequence_number();
+                        if let Some(seq) = expected {
+                            if this_seq != seq {
+                                println!("RTP: sequence mismatch: expected {:?}, got {:?}", seq, rtp.sequence_number());
+                            }
+                        }
+                        expected = Some(this_seq.next());
                         //println!("got a packet from {:?}, seq {}", addr, rtp.sequence_number());
                         demux.push(rtp.payload());
                     },
@@ -55,7 +64,7 @@ fn net2_main(cmd: &cli::NetCmd) {
 
 fn file_main(cmd: &cli::FileCmd) -> Result<(), std::io::Error> {
     let mut f = File::open(&cmd.name).expect(&format!("Problem reading {}", cmd.name));
-    let mut buf = [0u8; 188*1024];
+    let mut buf = [0u8; 1880*1024];
     let mut demux = mpegts::create_demux();
     loop {
         match f.read(&mut buf[..])? {
@@ -73,10 +82,11 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
         cli::SectEncoding::Base64 => base64::decode(cmd.value.as_bytes()).map_err(|e| format!("base64 decoding problem: {:?}", e))?,
         cli::SectEncoding::Hex => hex::decode(cmd.value.as_bytes()).map_err(|e| format!("hex decoding problem: {:?}", e))?,
     };
-    let mut parser = mpeg2ts_reader::psi::SectionParser::new(|header, buf| {
-        scte35_reader::Scte35SectionProcessor::new(mpegts::DumpSpliceInfoProcessor).process(header, buf)
-    });
-    parser.begin_new_section(&data[..]);
+    let mut parser = scte35_reader::Scte35SectionProcessor::new(
+        mpegts::DumpSpliceInfoProcessor
+    );
+    let header = psi::SectionCommonHeader::new(&data[..psi::SectionCommonHeader::SIZE]);
+    parser.start_section(&header, &data[..]);
     Ok(())
 }
 fn main() {

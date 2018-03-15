@@ -17,17 +17,20 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
 }
 
 struct Scte35StreamConsumer {
-    section: psi::SectionPacketConsumer,
+    section: psi::SectionPacketConsumer<scte35_reader::Scte35SectionProcessor<DumpSpliceInfoProcessor>>,
 }
 impl Default for Scte35StreamConsumer {
     fn default() -> Self {
+        let parser = scte35_reader::Scte35SectionProcessor::new(
+            DumpSpliceInfoProcessor
+        );
         Scte35StreamConsumer {
-            section: psi::SectionPacketConsumer::new(scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor))
+            section: psi::SectionPacketConsumer::new(parser)
         }
     }
 }
 impl Scte35StreamConsumer {
-    fn construct(stream_info: &demultiplex::StreamInfo) -> Box<cell::RefCell<demultiplex::PacketFilter>> {
+    fn construct(_pmt: &demultiplex::PmtSection, stream_info: &demultiplex::StreamInfo) -> Box<cell::RefCell<demultiplex::PacketFilter>> {
         // TODO: check for registration descriptor per SCTE-35, section 8.1
         for d in stream_info.descriptors() {
             match d {
@@ -47,8 +50,8 @@ impl packet::PacketConsumer<demultiplex::FilterChangeset> for Scte35StreamConsum
 }
 
 pub fn create_demux() -> demultiplex::Demultiplex {
-    let mut table: HashMap<StreamType, fn(&demultiplex::StreamInfo)->Box<cell::RefCell<demultiplex::PacketFilter>>>
-    = HashMap::new();
+    let mut table: HashMap<StreamType, fn(&demultiplex::PmtSection,&demultiplex::StreamInfo)->Box<cell::RefCell<demultiplex::PacketFilter>>>
+        = HashMap::new();
 
     table.insert(StreamType::Private(0x86), Scte35StreamConsumer::construct);
     let ctor = demultiplex::StreamConstructor::new(demultiplex::NullPacketFilter::construct, table);
