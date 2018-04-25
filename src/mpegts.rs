@@ -1,9 +1,8 @@
-use std::cell;
 use mpeg2ts_reader::demultiplex;
+use mpeg2ts_reader::descriptor;
 use mpeg2ts_reader::packet;
 use mpeg2ts_reader::psi;
 use mpeg2ts_reader::StreamType;
-use std::collections::HashMap;
 use scte35_reader;
 
 pub struct DumpSpliceInfoProcessor;
@@ -16,8 +15,8 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
     }
 }
 
-struct Scte35StreamConsumer {
-    section: psi::SectionPacketConsumer<scte35_reader::Scte35SectionProcessor<DumpSpliceInfoProcessor>>,
+pub struct Scte35StreamConsumer {
+    section: psi::SectionPacketConsumer<scte35_reader::Scte35SectionProcessor<DumpSpliceInfoProcessor, DumpDemuxContext>>,
 }
 impl Default for Scte35StreamConsumer {
     fn default() -> Self {
@@ -29,31 +28,62 @@ impl Default for Scte35StreamConsumer {
         }
     }
 }
-impl Scte35StreamConsumer {
-    fn construct(_pmt: &demultiplex::PmtSection, stream_info: &demultiplex::StreamInfo) -> Box<cell::RefCell<demultiplex::PacketFilter>> {
-        // TODO: check for registration descriptor per SCTE-35, section 8.1
-        for d in stream_info.descriptors() {
-            match d {
-                Ok(desc) => println!("scte35 descriptor tag={:?}", desc.tag()),
-                Err(e) => println!("Problem reading descriptor: {:?}", e),
-            }
+
+/// Check for registration descriptor per SCTE-35, section 8.1
+fn is_scte35(pmt: &demultiplex::PmtSection) -> bool {
+    for d in pmt.descriptors() {
+        if let Ok(descriptor::Descriptor::Registration { payload: b"CUEI" }) = d {
+            return true;
         }
-        let consumer = Scte35StreamConsumer::default();
-        Box::new(cell::RefCell::new(consumer))
+    }
+    false
+}
+
+impl Scte35StreamConsumer {
+    fn construct(pmt: &demultiplex::PmtSection, stream_info: &demultiplex::StreamInfo) -> DumpFilterSwitch {
+        if is_scte35(pmt) {
+            println!("Found SCTE-35 data on PID {} ({:#x})",
+                     stream_info.elementary_pid(),
+                     stream_info.elementary_pid());
+            DumpFilterSwitch::Scte35(Scte35StreamConsumer::default())
+        } else {
+            println!("PID {} has type {:?}, but PMT lacks 'CUEI' registration_descriptor that would indicate SCTE-35 content",
+                     stream_info.elementary_pid(),
+                     stream_info.stream_type());
+            DumpFilterSwitch::Unhandled(demultiplex::UnhandledPid::new())
+        }
     }
 }
-impl packet::PacketConsumer<demultiplex::FilterChangeset> for Scte35StreamConsumer {
-    fn consume(&mut self, pk: packet::Packet) -> Option<demultiplex::FilterChangeset> {
-        self.section.consume(pk);
-        None
+impl demultiplex::PacketFilter for Scte35StreamConsumer {
+    type Ctx = DumpDemuxContext;
+    fn consume(&mut self, ctx: &mut Self::Ctx, pk: packet::Packet) {
+        self.section.consume(ctx, pk);
     }
 }
 
-pub fn create_demux() -> demultiplex::Demultiplex {
-    let mut table: HashMap<StreamType, fn(&demultiplex::PmtSection,&demultiplex::StreamInfo)->Box<cell::RefCell<demultiplex::PacketFilter>>>
-        = HashMap::new();
 
-    table.insert(StreamType::Private(0x86), Scte35StreamConsumer::construct);
-    let ctor = demultiplex::StreamConstructor::new(demultiplex::NullPacketFilter::construct, table);
-    demultiplex::Demultiplex::new(ctor)
+packet_filter_switch!{
+    DumpFilterSwitch<DumpDemuxContext> {
+        Pat: demultiplex::PatPacketFilter<DumpDemuxContext>,
+        Pmt: demultiplex::PmtPacketFilter<DumpDemuxContext>,
+        Null: demultiplex::NullPacketFilter<DumpDemuxContext>,
+        Unhandled: demultiplex::UnhandledPid<DumpDemuxContext>,
+        Scte35: Scte35StreamConsumer,
+    }
+}
+demux_context!(DumpDemuxContext, DumpStreamConstructor);
+
+pub struct DumpStreamConstructor;
+impl demultiplex::StreamConstructor for DumpStreamConstructor {
+    type F = DumpFilterSwitch;
+
+    fn construct(&mut self, req: demultiplex::FilterRequest) -> Self::F {
+        match req {
+            demultiplex::FilterRequest::ByPid(0) => DumpFilterSwitch::Pat(demultiplex::PatPacketFilter::new()),
+            demultiplex::FilterRequest::ByPid(_) => DumpFilterSwitch::Unhandled(demultiplex::UnhandledPid::new()),
+            demultiplex::FilterRequest::ByStream(StreamType::Private(0x86), pmt_section, stream_info) => Scte35StreamConsumer::construct(pmt_section, stream_info),
+            demultiplex::FilterRequest::ByStream(_stype, _pmt_section, _stream_info) => DumpFilterSwitch::Null(demultiplex::NullPacketFilter::new()),
+            demultiplex::FilterRequest::Pmt{pid, program_number} => DumpFilterSwitch::Pmt(demultiplex::PmtPacketFilter::new(pid, program_number)),
+        }
+    }
 }

@@ -1,4 +1,5 @@
 extern crate rtp_rs;
+#[macro_use]
 extern crate mpeg2ts_reader;
 extern crate hexdump;
 extern crate bitreader;
@@ -16,6 +17,7 @@ mod mpegts;
 mod cli;
 
 use mpeg2ts_reader::psi;
+use mpeg2ts_reader::demultiplex;
 
 fn net2_main(cmd: &cli::NetCmd) {
     let udp = net2::UdpBuilder::new_v4().unwrap();
@@ -26,7 +28,8 @@ fn net2_main(cmd: &cli::NetCmd) {
     }
     let mut buf = Vec::new();
     buf.resize(9000, 0);
-    let mut demux = mpegts::create_demux();
+    let mut ctx = mpegts::DumpDemuxContext::new(mpegts::DumpStreamConstructor);
+    let mut demux = demultiplex::Demultiplex::new(&mut ctx);
     let mut expected = None;
     loop {
         match sock.recv_from(&mut buf[..]) {
@@ -42,7 +45,7 @@ fn net2_main(cmd: &cli::NetCmd) {
                         }
                         expected = Some(this_seq.next());
                         //println!("got a packet from {:?}, seq {}", addr, rtp.sequence_number());
-                        demux.push(rtp.payload());
+                        demux.push(&mut ctx, rtp.payload());
                     },
                     Err(e) => {
                         println!("rtp error from {:?}: {:?}", addr, e);
@@ -60,12 +63,13 @@ fn net2_main(cmd: &cli::NetCmd) {
 fn file_main(cmd: &cli::FileCmd) -> Result<(), std::io::Error> {
     let mut f = File::open(&cmd.name).expect(&format!("Problem reading {}", cmd.name));
     let mut buf = [0u8; 1880*1024];
-    let mut demux = mpegts::create_demux();
+    let mut ctx = mpegts::DumpDemuxContext::new(mpegts::DumpStreamConstructor);
+    let mut demux = demultiplex::Demultiplex::new(&mut ctx);
     loop {
         match f.read(&mut buf[..])? {
             0 => break,
             // TODO: if not all bytes are consumed, track buf remainder
-            n => demux.push(&buf[0..n]),
+            n => demux.push(&mut ctx, &buf[0..n]),
         }
     }
     Ok(())
@@ -81,7 +85,8 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
         mpegts::DumpSpliceInfoProcessor
     );
     let header = psi::SectionCommonHeader::new(&data[..psi::SectionCommonHeader::SIZE]);
-    parser.start_section(&header, &data[..]);
+    let mut ctx = mpegts::DumpDemuxContext::new(mpegts::DumpStreamConstructor);
+    parser.start_section(&mut ctx, &header, &data[..]);
     Ok(())
 }
 fn main() {
@@ -94,10 +99,10 @@ fn main() {
             net2_main(&cmd);
         },
         Ok(cli::CommandSpec::File(cmd)) => {
-            file_main(&cmd);
+            file_main(&cmd).expect("file")
         },
         Ok(cli::CommandSpec::Section(cmd)) => {
-            section_main(&cmd);
+            section_main(&cmd).expect("section");
         },
     }
     //tokio_main();
