@@ -1,7 +1,3 @@
-#![feature(conservative_impl_trait)]
-
-extern crate futures;
-extern crate tokio_core;
 extern crate rtp_rs;
 extern crate mpeg2ts_reader;
 extern crate hexdump;
@@ -17,7 +13,6 @@ use std::io::Read;
 use mpeg2ts_reader::psi::SectionProcessor;
 
 mod mpegts;
-mod tokio;
 mod cli;
 
 use mpeg2ts_reader::psi;
