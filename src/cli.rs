@@ -94,7 +94,7 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
         .get_matches();
 
     let cmd = if let Some(matches) = matches.subcommand_matches("net") {
-        let addr = match matches.value_of("b") {
+        let addr = match matches.value_of("bind") {
             Some(a) => a,
             None => "0.0.0.0",
         };
