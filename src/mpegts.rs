@@ -32,7 +32,7 @@ impl Default for Scte35StreamConsumer {
 /// Check for registration descriptor per SCTE-35, section 8.1
 fn is_scte35(pmt: &demultiplex::PmtSection) -> bool {
     for d in pmt.descriptors() {
-        if let Ok(descriptor::Descriptor::Registration { payload: b"CUEI" }) = d {
+        if let Ok(descriptor::CoreDescriptors::Registration(descriptor::RegistrationDescriptor { buf: b"CUEI" })) = d {
             return true;
         }
     }
@@ -84,6 +84,7 @@ impl demultiplex::StreamConstructor for DumpStreamConstructor {
             demultiplex::FilterRequest::ByStream(StreamType::Private(0x86), pmt_section, stream_info) => Scte35StreamConsumer::construct(pmt_section, stream_info),
             demultiplex::FilterRequest::ByStream(_stype, _pmt_section, _stream_info) => DumpFilterSwitch::Null(demultiplex::NullPacketFilter::new()),
             demultiplex::FilterRequest::Pmt{pid, program_number} => DumpFilterSwitch::Pmt(demultiplex::PmtPacketFilter::new(pid, program_number)),
+            demultiplex::FilterRequest::Nit{..} => DumpFilterSwitch::Null(demultiplex::NullPacketFilter::new()),
         }
     }
 }
