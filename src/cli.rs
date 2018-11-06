@@ -1,15 +1,14 @@
-
+use clap::{App, Arg, ArgMatches, SubCommand};
 use std::net::{Ipv4Addr, SocketAddr};
-use clap::{Arg, App, SubCommand, ArgMatches};
 
 pub struct Group {
     pub addr: Ipv4Addr,
-    pub ifaddr: Ipv4Addr ,
+    pub ifaddr: Ipv4Addr,
 }
 
 pub struct NetCmd {
     pub addr: SocketAddr,
-    pub group: Option<Group>
+    pub group: Option<Group>,
 }
 
 pub struct FileCmd {
@@ -50,48 +49,61 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
     let matches = App::new("scte35dump")
         .author("David Holroyd")
         .about("Extract SCTE-35 information from MPEG Transport Streams")
-        .subcommand(SubCommand::with_name("net")
-            .about("Read an RTP-encapsulated transport stream from the network")
-            .arg(Arg::with_name("port")
-                .short("p")
-                .long("port")
-                .help("UDP port to bind to")
-                .takes_value(true)
-                .required(true))
-            .arg(Arg::with_name("bind")
-                .short("b")
-                .long("bind")
-                .takes_value(true)
-                .help("IP address to bind to (defaults to 0.0.0.0)"))
-            .arg(Arg::with_name("mcast")
-                .short("m")
-                .help("Multicast group to join")
-                .takes_value(true)
-                .required(false))
-            .arg(Arg::with_name("ifaddr")
-                .long("ifaddr")
-                .takes_value(true)
-                .help("IP address of the network interface to be joined to a multicast group")))
-        .subcommand(SubCommand::with_name("file")
-            .about("Read a transport stream from the named file")
-            .arg(Arg::with_name("NAME")
-                .required(true)))
-        .subcommand(SubCommand::with_name("section")
-            .about("Decode a single splice_info section value given on the command line")
-            .arg(Arg::with_name("base64")
-                .help("The provided section data is base64 encoded")
-                .long("base64")
-                .takes_value(false)
-                .required(false))
-            .arg(Arg::with_name("hex")
-                .help("The provided section data is hexidecimal encoded")
-                .long("hex")
-                .takes_value(false)
-                .required(false))
-            .arg(Arg::with_name("SECTION")
-                .help("A SCTE-35 splice_info section value")
-                .required(true)))
-        .get_matches();
+        .subcommand(
+            SubCommand::with_name("net")
+                .about("Read an RTP-encapsulated transport stream from the network")
+                .arg(
+                    Arg::with_name("port")
+                        .short("p")
+                        .long("port")
+                        .help("UDP port to bind to")
+                        .takes_value(true)
+                        .required(true),
+                ).arg(
+                    Arg::with_name("bind")
+                        .short("b")
+                        .long("bind")
+                        .takes_value(true)
+                        .help("IP address to bind to (defaults to 0.0.0.0)"),
+                ).arg(
+                    Arg::with_name("mcast")
+                        .short("m")
+                        .help("Multicast group to join")
+                        .takes_value(true)
+                        .required(false),
+                ).arg(
+                    Arg::with_name("ifaddr")
+                        .long("ifaddr")
+                        .takes_value(true)
+                        .help(
+                            "IP address of the network interface to be joined to a multicast group",
+                        ),
+                ),
+        ).subcommand(
+            SubCommand::with_name("file")
+                .about("Read a transport stream from the named file")
+                .arg(Arg::with_name("NAME").required(true)),
+        ).subcommand(
+            SubCommand::with_name("section")
+                .about("Decode a single splice_info section value given on the command line")
+                .arg(
+                    Arg::with_name("base64")
+                        .help("The provided section data is base64 encoded")
+                        .long("base64")
+                        .takes_value(false)
+                        .required(false),
+                ).arg(
+                    Arg::with_name("hex")
+                        .help("The provided section data is hexidecimal encoded")
+                        .long("hex")
+                        .takes_value(false)
+                        .required(false),
+                ).arg(
+                    Arg::with_name("SECTION")
+                        .help("A SCTE-35 splice_info section value")
+                        .required(true),
+                ),
+        ).get_matches();
 
     let cmd = if let Some(matches) = matches.subcommand_matches("net") {
         let addr = match matches.value_of("bind") {
@@ -101,7 +113,11 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
         CommandSpec::Net(NetCmd {
             addr: SocketAddr::new(
                 addr.parse().map_err(|_| "invalid bind address")?,
-                matches.value_of("port").unwrap().parse().map_err(|_| "invalid port")?
+                matches
+                    .value_of("port")
+                    .unwrap()
+                    .parse()
+                    .map_err(|_| "invalid port")?,
             ),
             group: group(matches),
         })
@@ -115,14 +131,14 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
         } else if matches.is_present("base64") {
             SectEncoding::Base64
         } else {
-            return Err("Either --hex or --base64 must be specified")
+            return Err("Either --hex or --base64 must be specified");
         };
         CommandSpec::Section(SectCmd {
             value: matches.value_of("SECTION").unwrap().to_string(),
             encoding: enc,
         })
     } else {
-        return Err("subcommand must be specified")
+        return Err("subcommand must be specified");
     };
 
     Ok(cmd)
