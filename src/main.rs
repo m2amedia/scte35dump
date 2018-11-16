@@ -18,7 +18,6 @@ mod mpegts;
 
 use mpeg2ts_reader::demultiplex;
 use mpeg2ts_reader::psi;
-use std::thread;
 
 fn net2_main(cmd: &cli::NetCmd) {
     let udp = net2::UdpBuilder::new_v4().unwrap();
@@ -95,21 +94,7 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
     Ok(())
 }
 fn main() {
-    let child = thread::Builder::new().stack_size(32 * 1024 * 1024).spawn(move || {
-        // 'scte35dump --help' would exhaust stack under windows -- try running on a thread with
-        // much larger stack?
-        cli::cli()
-    });
-
-    let child = match child {
-        Ok(c) => c,
-        Err(e) => {
-            eprintln!("failed to spawn thread");
-            return;
-        }
-    };
-
-    match child.join().unwrap() {
+    match cli::cli() {
         Err(e) => {
             eprintln!("Invalid command line: {}", e);
             ::std::process::exit(1);
