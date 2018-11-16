@@ -99,7 +99,15 @@ fn main() {
         // 'scte35dump --help' would exhaust stack under windows -- try running on a thread with
         // much larger stack?
         cli::cli()
-    }).unwrap();
+    });
+
+    let child = match child {
+        Ok(c) => c,
+        Err(e) => {
+            eprintln!("failed to spawn thread");
+            return;
+        }
+    };
 
     match child.join().unwrap() {
         Err(e) => {
