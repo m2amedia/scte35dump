@@ -66,7 +66,7 @@ impl Scte35StreamConsumer {
                      program_pid,
                      stream_info.elementary_pid(),
                      stream_info.stream_type());
-            DumpFilterSwitch::Unhandled(demultiplex::UnhandledPid::default())
+            DumpFilterSwitch::Null(demultiplex::NullPacketFilter::default())
         }
     }
 }
@@ -82,7 +82,6 @@ packet_filter_switch!{
         Pat: demultiplex::PatPacketFilter<DumpDemuxContext>,
         Pmt: demultiplex::PmtPacketFilter<DumpDemuxContext>,
         Null: demultiplex::NullPacketFilter<DumpDemuxContext>,
-        Unhandled: demultiplex::UnhandledPid<DumpDemuxContext>,
         Scte35: Scte35StreamConsumer,
     }
 }
@@ -98,7 +97,7 @@ impl demultiplex::StreamConstructor for DumpStreamConstructor {
                 DumpFilterSwitch::Pat(demultiplex::PatPacketFilter::default())
             }
             demultiplex::FilterRequest::ByPid(_) => {
-                DumpFilterSwitch::Unhandled(demultiplex::UnhandledPid::default())
+                DumpFilterSwitch::Null(demultiplex::NullPacketFilter::default())
             }
             demultiplex::FilterRequest::ByStream {
                 program_pid,
