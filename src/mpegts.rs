@@ -11,10 +11,10 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
         &self,
         header: scte35_reader::SpliceInfoHeader,
         command: scte35_reader::SpliceCommand,
-        descriptors: scte35_reader::SpliceDescriptorIter,
+        descriptors: scte35_reader::SpliceDescriptors,
     ) {
         println!("{:?} {:#?}", header, command);
-        for d in descriptors {
+        for d in &descriptors {
             println!("  {:?}", d);
         }
     }

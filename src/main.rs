@@ -49,7 +49,7 @@ fn net2_main(cmd: &cli::NetCmd) {
                             }
                         }
                         expected = Some(this_seq.next());
-                        //println!("got a packet from {:?}, seq {}", addr, rtp.sequence_number());
+                        //println!("got a packet from {:?}, seq {:?}", addr, rtp.sequence_number());
                         demux.push(&mut ctx, rtp.payload());
                     }
                     Err(e) => {
