@@ -31,7 +31,7 @@ pub enum CommandSpec {
     Section(SectCmd),
 }
 
-fn group(matches: &ArgMatches) -> Option<Group> {
+fn group(matches: &ArgMatches<'_>) -> Option<Group> {
     matches.value_of("mcast").map(|mcast| {
         let ifaddr = if let Some(addr) = matches.value_of("ifaddr") {
             addr.parse().unwrap()

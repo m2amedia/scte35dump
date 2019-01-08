@@ -9,9 +9,9 @@ pub struct DumpSpliceInfoProcessor;
 impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
     fn process(
         &self,
-        header: scte35_reader::SpliceInfoHeader,
+        header: scte35_reader::SpliceInfoHeader<'_>,
         command: scte35_reader::SpliceCommand,
-        descriptors: scte35_reader::SpliceDescriptors,
+        descriptors: scte35_reader::SpliceDescriptors<'_>,
     ) {
         println!("{:?} {:#?}", header, command);
         for d in &descriptors {
@@ -35,7 +35,7 @@ impl Default for Scte35StreamConsumer {
 }
 
 /// Check for registration descriptor per SCTE-35, section 8.1
-fn is_scte35(pmt: &psi::pmt::PmtSection) -> bool {
+fn is_scte35(pmt: &psi::pmt::PmtSection<'_>) -> bool {
     for d in pmt.descriptors() {
         if let Ok(descriptor::CoreDescriptors::Registration(
             descriptor::registration::RegistrationDescriptor { buf: b"CUEI" },
@@ -50,8 +50,8 @@ fn is_scte35(pmt: &psi::pmt::PmtSection) -> bool {
 impl Scte35StreamConsumer {
     fn construct(
         program_pid: packet::Pid,
-        pmt: &psi::pmt::PmtSection,
-        stream_info: &psi::pmt::StreamInfo,
+        pmt: &psi::pmt::PmtSection<'_>,
+        stream_info: &psi::pmt::StreamInfo<'_>,
     ) -> DumpFilterSwitch {
         if is_scte35(pmt) {
             println!(
@@ -72,12 +72,12 @@ impl Scte35StreamConsumer {
 }
 impl demultiplex::PacketFilter for Scte35StreamConsumer {
     type Ctx = DumpDemuxContext;
-    fn consume(&mut self, ctx: &mut Self::Ctx, pk: &packet::Packet) {
+    fn consume(&mut self, ctx: &mut Self::Ctx, pk: &packet::Packet<'_>) {
         self.section.consume(ctx, pk);
     }
 }
 
-packet_filter_switch!{
+mpeg2ts_reader::packet_filter_switch!{
     DumpFilterSwitch<DumpDemuxContext> {
         Pat: demultiplex::PatPacketFilter<DumpDemuxContext>,
         Pmt: demultiplex::PmtPacketFilter<DumpDemuxContext>,
@@ -85,13 +85,13 @@ packet_filter_switch!{
         Scte35: Scte35StreamConsumer,
     }
 }
-demux_context!(DumpDemuxContext, DumpStreamConstructor);
+mpeg2ts_reader::demux_context!(DumpDemuxContext, DumpStreamConstructor);
 
 pub struct DumpStreamConstructor;
 impl demultiplex::StreamConstructor for DumpStreamConstructor {
     type F = DumpFilterSwitch;
 
-    fn construct(&mut self, req: demultiplex::FilterRequest) -> Self::F {
+    fn construct(&mut self, req: demultiplex::FilterRequest<'_, '_>) -> Self::F {
         match req {
             demultiplex::FilterRequest::ByPid(packet::Pid::PAT) => {
                 DumpFilterSwitch::Pat(demultiplex::PatPacketFilter::default())

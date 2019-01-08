@@ -1,13 +1,4 @@
-extern crate rtp_rs;
-#[macro_use]
-extern crate mpeg2ts_reader;
-extern crate base64;
-extern crate bitreader;
-extern crate clap;
-extern crate hex;
-extern crate hexdump;
-extern crate net2;
-extern crate scte35_reader;
+#![deny(rust_2018_idioms, future_incompatible)]
 
 use mpeg2ts_reader::psi::SectionProcessor;
 use std::fs::File;
