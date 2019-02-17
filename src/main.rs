@@ -9,6 +9,8 @@ mod mpegts;
 
 use mpeg2ts_reader::demultiplex;
 use mpeg2ts_reader::psi;
+use std::rc;
+use std::cell;
 
 fn net2_main(cmd: &cli::NetCmd) {
     let udp = net2::UdpBuilder::new_v4()
@@ -23,7 +25,7 @@ fn net2_main(cmd: &cli::NetCmd) {
     }
     let mut buf = Vec::new();
     buf.resize(9000, 0);
-    let mut ctx = mpegts::DumpDemuxContext::new(mpegts::DumpStreamConstructor);
+    let mut ctx = mpegts::DumpDemuxContext::new();
     let mut demux = demultiplex::Demultiplex::new(&mut ctx);
     let mut expected = None;
     loop {
@@ -62,7 +64,7 @@ fn net2_main(cmd: &cli::NetCmd) {
 fn file_main(cmd: &cli::FileCmd) -> Result<(), std::io::Error> {
     let mut f = File::open(&cmd.name).expect(&format!("Problem reading {}", cmd.name));
     let mut buf = [0u8; 1880 * 1024];
-    let mut ctx = mpegts::DumpDemuxContext::new(mpegts::DumpStreamConstructor);
+    let mut ctx = mpegts::DumpDemuxContext::new();
     let mut demux = demultiplex::Demultiplex::new(&mut ctx);
     loop {
         match f.read(&mut buf[..])? {
@@ -81,9 +83,9 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
         cli::SectEncoding::Hex => hex::decode(cmd.value.as_bytes())
             .map_err(|e| format!("hex decoding problem: {:?}", e))?,
     };
-    let mut parser = scte35_reader::Scte35SectionProcessor::new(mpegts::DumpSpliceInfoProcessor);
+    let mut parser = scte35_reader::Scte35SectionProcessor::new(mpegts::DumpSpliceInfoProcessor { last_pcr: rc::Rc::new(cell::Cell::new(None)) });
     let header = psi::SectionCommonHeader::new(&data[..psi::SectionCommonHeader::SIZE]);
-    let mut ctx = mpegts::DumpDemuxContext::new(mpegts::DumpStreamConstructor);
+    let mut ctx = mpegts::DumpDemuxContext::new();
     parser.start_section(&mut ctx, &header, &data[..]);
     Ok(())
 }

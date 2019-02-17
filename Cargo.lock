@@ -135,11 +135,6 @@ version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "hex-slice"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
 name = "hexdump"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -168,12 +163,11 @@ dependencies = [
 
 [[package]]
 name = "mpeg2ts-reader"
-version = "0.8.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "encoding 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
  "fixedbitset 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)",
- "hex-slice 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -241,11 +235,11 @@ dependencies = [
 
 [[package]]
 name = "scte35-reader"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitreader 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "mpeg2ts-reader 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mpeg2ts-reader 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.84 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_derive 1.0.84 (registry+https://github.com/rust-lang/crates.io-index)",
  "serdebug 1.0.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -260,10 +254,10 @@ dependencies = [
  "clap 2.32.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "hex 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "hexdump 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "mpeg2ts-reader 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "mpeg2ts-reader 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
  "rtp-rs 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "scte35-reader 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "scte35-reader 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -409,12 +403,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum encoding_index_tests 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "a246d82be1c9d791c5dfde9a2bd045fc3cbba3fa2b11ad558f27d01712f00569"
 "checksum fixedbitset 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)" = "86d4de0081402f5e88cdac65c8dcdcc73118c1a7a465e2a05f0da05843a8ea33"
 "checksum hex 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)" = "805026a5d0141ffc30abb3be3173848ad46a1b1664fe632428479619a3644d77"
-"checksum hex-slice 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "5491a308e0214554f07a81d8944abe45f552871c12e3c3c6e7e5d354039a6c4c"
 "checksum hexdump 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "850f3f2c33d20c0f96c4485e087dd580ff041d720988ebf4c84a42acf739262b"
 "checksum itertools 0.4.19 (registry+https://github.com/rust-lang/crates.io-index)" = "c4a9b56eb56058f43dc66e58f40a214b2ccbc9f3df51861b63d51dec7b65bc3f"
 "checksum libc 0.2.46 (registry+https://github.com/rust-lang/crates.io-index)" = "023a4cd09b2ff695f9734c1934145a315594b7986398496841c7031a5a1bbdbd"
 "checksum log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)" = "c84ec4b527950aa83a329754b01dbe3f58361d1c5efacd1f6d68c494d08a17c6"
-"checksum mpeg2ts-reader 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "340e2e27566222d2538e1d277228eb877961b75f87f6646f90ea4cd4a65cb673"
+"checksum mpeg2ts-reader 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e32bbda4a443c092805dfb41a53448ffc0d59e96795d31ba5dccdd46c0910503"
 "checksum net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)" = "42550d9fb7b6684a6d404d9fa7250c2eb2646df731d1c06afc06dcee9e1bcf88"
 "checksum nodrop 0.1.13 (registry+https://github.com/rust-lang/crates.io-index)" = "2f9667ddcc6cc8a43afc9b7917599d7216aa09c463919ea32c59ed6cac8bc945"
 "checksum odds 0.2.26 (registry+https://github.com/rust-lang/crates.io-index)" = "4eae0151b9dacf24fcc170d9995e511669a082856a91f958a2fe380bfab3fb22"
@@ -424,7 +417,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7e891cfe48e9100a70a3b6eb652fef28920c117d366339687bd5576160db0f76"
 "checksum rtp-rs 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bc86f35c9a0b6ad4395cbd4c157705a7d8804a3394ae07f0878bd801326e8161"
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
-"checksum scte35-reader 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8d7fe19c7c9a8c8d4bd8a690c3b79e4b2f84e10082b520201691e08f46904ee7"
+"checksum scte35-reader 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c2e12d5fe6baf40dcb4ce84d7c704bed8bf699f1203f8de54ef9368fd9d5ddf0"
 "checksum semver 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "1d7eb9ef2c18661902cc47e535f9bc51b78acd254da71d375c2f6720d9a40403"
 "checksum semver-parser 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 "checksum serde 1.0.84 (registry+https://github.com/rust-lang/crates.io-index)" = "0e732ed5a5592c17d961555e3b552985baf98d50ce418b7b655f31f6ba7eb1b7"
