@@ -22,8 +22,8 @@ Not all commands are currently implemented:
  - [x] `splice_null()`
  - [ ] `splice_schedule()`
  - [x] `splice_insert()`
- - [ ] `time_signal()`
- - [ ] `bandwidth_reservation()`
+ - [x] `time_signal()`
+ - [x] `bandwidth_reservation()`
  - [ ] `private_command()`
 
 # Examples
