@@ -106,7 +106,7 @@ impl demultiplex::PacketFilter for Scte35StreamConsumer {
 pub struct PcrWatch(Rc<cell::Cell<Option<packet::ClockRef>>>);
 impl demultiplex::PacketFilter for PcrWatch {
     type Ctx = DumpDemuxContext;
-    fn consume(&mut self, ctx: &mut Self::Ctx, pk: &packet::Packet<'_>) {
+    fn consume(&mut self, _ctx: &mut Self::Ctx, pk: &packet::Packet<'_>) {
         if let Some(af) = pk.adaptation_field() {
             if let Ok(pcr) = af.pcr() {
                 self.0.set(Some(pcr));
@@ -167,9 +167,9 @@ impl demultiplex::DemuxContext for DumpDemuxContext {
             },
             demultiplex::FilterRequest::ByStream {
                 program_pid,
-                stream_type,
-                pmt,
-                stream_info,
+                stream_type: _,
+                pmt: _,
+                stream_info: _,
             } => {
                 DumpFilterSwitch::Pcr(PcrWatch(self.last_pcr(program_pid)))
             },
