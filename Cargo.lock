@@ -222,7 +222,7 @@ dependencies = [
 
 [[package]]
 name = "rtp-rs"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -256,7 +256,7 @@ dependencies = [
  "hexdump 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "mpeg2ts-reader 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "net2 0.2.33 (registry+https://github.com/rust-lang/crates.io-index)",
- "rtp-rs 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rtp-rs 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "scte35-reader 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -415,7 +415,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum quote 0.6.10 (registry+https://github.com/rust-lang/crates.io-index)" = "53fa22a1994bd0f9372d7a816207d8a2677ad0325b073f5c5332760f0fb62b5c"
 "checksum redox_syscall 0.1.50 (registry+https://github.com/rust-lang/crates.io-index)" = "52ee9a534dc1301776eff45b4fa92d2c39b1d8c3d3357e6eb593e0d795506fc2"
 "checksum redox_termios 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7e891cfe48e9100a70a3b6eb652fef28920c117d366339687bd5576160db0f76"
-"checksum rtp-rs 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bc86f35c9a0b6ad4395cbd4c157705a7d8804a3394ae07f0878bd801326e8161"
+"checksum rtp-rs 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "e78db1179f207610e377451c3e81cfe177cc101a738430c9bc400729563c598c"
 "checksum rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "138e3e0acb6c9fb258b19b67cb8abd63c00679d2851805ea151465464fe9030a"
 "checksum scte35-reader 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c2e12d5fe6baf40dcb4ce84d7c704bed8bf699f1203f8de54ef9368fd9d5ddf0"
 "checksum semver 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)" = "1d7eb9ef2c18661902cc47e535f9bc51b78acd254da71d375c2f6720d9a40403"

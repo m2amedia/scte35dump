@@ -12,7 +12,7 @@ edition = "2018"
 [dependencies]
 hexdump = "0.1.0"
 mpeg2ts-reader = "0.9"
-rtp-rs = "0.2"
+rtp-rs = "0.3"
 bitreader = "0.3"
 net2 = "0.2"
 clap = "2.32"
