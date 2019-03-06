@@ -16,6 +16,13 @@ SUBCOMMANDS:
     section    Decode a single splice_info section value given on the command line
 ```
 
+## Install
+
+ 1. Install `rustup`: https://rustup.rs/ (which will give you a Rust build env, including the `cargo` tool)
+ 2. Run `cargo install scte35dump`
+ 3. Run `scte35dump --help` for usage instructions
+
+
 ## SCTE-35 spec coverage
 
 Not all commands are currently implemented:
