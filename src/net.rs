@@ -1,19 +1,18 @@
 use crate::cli;
 use crate::mpegts;
 use mpeg2ts_reader::demultiplex;
-use std::net;
-use std::io;
-use smpte2022_1_fec::heap_pool::HeapPool;
-use smpte2022_1_fec::Decoder;
-use smpte2022_1_fec::BufferPool;
-use smpte2022_1_fec::Packet;
-use smpte2022_1_fec::Receiver;
 use smpte2022_1_fec::heap_pool::HeapPacket;
+use smpte2022_1_fec::heap_pool::HeapPool;
+use smpte2022_1_fec::BufferPool;
+use smpte2022_1_fec::Decoder;
+use smpte2022_1_fec::Packet;
 use smpte2022_1_fec::PacketStatus;
+use smpte2022_1_fec::Receiver;
+use std::io;
+use std::net;
 
 pub fn main(cmd: &cli::NetCmd) {
-    let sock = create_socket(cmd, cmd.addr.port())
-        .expect("Failed to create socket");
+    let sock = create_socket(cmd, cmd.addr.port()).expect("Failed to create socket");
     match cmd.fec {
         cli::Fec::None => simple_main(sock),
         cli::Fec::ProMpeg => fec_main(sock, cmd).unwrap(),
@@ -64,7 +63,7 @@ fn simple_main(sock: std::net::UdpSocket) {
 struct ScteFecReceiver {
     ctx: mpegts::DumpDemuxContext,
     demux: demultiplex::Demultiplex<mpegts::DumpDemuxContext>,
-    expected_seq: Option<rtp_rs::Seq>
+    expected_seq: Option<rtp_rs::Seq>,
 }
 impl Receiver<HeapPacket> for ScteFecReceiver {
     fn receive(&mut self, packets: impl Iterator<Item = (HeapPacket, PacketStatus)>) {
@@ -96,7 +95,7 @@ impl Receiver<HeapPacket> for ScteFecReceiver {
 
 /// Supports FEC decoding, which means needing to read from multiple sockets, which can't really
 /// be done with blocking as in simple_main()
-fn fec_main(main_sock: std::net::UdpSocket, cmd: &cli::NetCmd)-> Result<(), std::io::Error> {
+fn fec_main(main_sock: std::net::UdpSocket, cmd: &cli::NetCmd) -> Result<(), std::io::Error> {
     const MAIN: mio::Token = mio::Token(0);
     const FEC_ONE: mio::Token = mio::Token(1);
     const FEC_TWO: mio::Token = mio::Token(2);
@@ -104,16 +103,25 @@ fn fec_main(main_sock: std::net::UdpSocket, cmd: &cli::NetCmd)-> Result<(), std:
     const PACKET_SIZE_MAX: usize = 1500;
     const PACKET_COUNT_MAX: usize = 10 * 10 * 2 + 4 + 25;
 
-    let main_sock = mio::net::UdpSocket::from_socket(main_sock).expect("Failed to create main socket");
-    let fec_one = mio::net::UdpSocket::from_socket(create_socket(cmd, cmd.addr.port() + 2)
-        .expect("Failed to create FEC socket")).expect("Failed to create FEC socket");
-    let fec_two = mio::net::UdpSocket::from_socket(create_socket(cmd, cmd.addr.port() + 4)
-        .expect("Failed to create FEC socket")).expect("Failed to create FEC socket");
+    let main_sock =
+        mio::net::UdpSocket::from_socket(main_sock).expect("Failed to create main socket");
+    let fec_one = mio::net::UdpSocket::from_socket(
+        create_socket(cmd, cmd.addr.port() + 2).expect("Failed to create FEC socket"),
+    )
+    .expect("Failed to create FEC socket");
+    let fec_two = mio::net::UdpSocket::from_socket(
+        create_socket(cmd, cmd.addr.port() + 4).expect("Failed to create FEC socket"),
+    )
+    .expect("Failed to create FEC socket");
 
     let buffer_pool = HeapPool::new(PACKET_COUNT_MAX, PACKET_SIZE_MAX);
     let mut ctx = mpegts::DumpDemuxContext::new();
     let demux = demultiplex::Demultiplex::new(&mut ctx);
-    let recv = ScteFecReceiver { ctx, demux, expected_seq: None };
+    let recv = ScteFecReceiver {
+        ctx,
+        demux,
+        expected_seq: None,
+    };
     let mut decoder = Decoder::new(buffer_pool.clone(), recv);
 
     let poll = mio::Poll::new()?;
@@ -191,7 +199,7 @@ fn fec_main(main_sock: std::net::UdpSocket, cmd: &cli::NetCmd)-> Result<(), std:
 
 fn create_socket(cmd: &cli::NetCmd, port: u16) -> Result<std::net::UdpSocket, io::Error> {
     let udp = net2::UdpBuilder::new_v4()?;
-    udp.reuse_address(true)?;  // TODO: only if mcast?
+    udp.reuse_address(true)?; // TODO: only if mcast?
 
     let addr = net::SocketAddr::new(cmd.addr.ip(), port);
     let sock = udp.bind(addr)?;

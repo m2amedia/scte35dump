@@ -10,8 +10,8 @@ mod net;
 
 use mpeg2ts_reader::demultiplex;
 use mpeg2ts_reader::psi;
-use std::rc;
 use std::cell;
+use std::rc;
 
 fn file_main(cmd: &cli::FileCmd) -> Result<(), std::io::Error> {
     let mut f = File::open(&cmd.name).expect(&format!("Problem reading {}", cmd.name));
@@ -35,7 +35,9 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
         cli::SectEncoding::Hex => hex::decode(cmd.value.as_bytes())
             .map_err(|e| format!("hex decoding problem: {:?}", e))?,
     };
-    let mut parser = scte35_reader::Scte35SectionProcessor::new(mpegts::DumpSpliceInfoProcessor { last_pcr: rc::Rc::new(cell::Cell::new(None)) });
+    let mut parser = scte35_reader::Scte35SectionProcessor::new(mpegts::DumpSpliceInfoProcessor {
+        last_pcr: rc::Rc::new(cell::Cell::new(None)),
+    });
     let header = psi::SectionCommonHeader::new(&data[..psi::SectionCommonHeader::SIZE]);
     let mut ctx = mpegts::DumpDemuxContext::new();
     parser.start_section(&mut ctx, &header, &data[..]);

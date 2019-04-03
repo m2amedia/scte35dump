@@ -4,9 +4,9 @@ use mpeg2ts_reader::packet;
 use mpeg2ts_reader::psi;
 use mpeg2ts_reader::StreamType;
 use scte35_reader;
+use std::cell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use std::cell;
 
 pub struct DumpSpliceInfoProcessor {
     pub last_pcr: Rc<cell::Cell<Option<packet::ClockRef>>>,
@@ -24,7 +24,9 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
         print!("{:?} {:#?}", header, command);
         if let scte35_reader::SpliceCommand::SpliceInsert { splice_detail, .. } = command {
             if let scte35_reader::SpliceInsert::Insert { splice_mode, .. } = splice_detail {
-                if let scte35_reader::SpliceMode::Program(scte35_reader::SpliceTime::Timed(t)) = splice_mode {
+                if let scte35_reader::SpliceMode::Program(scte35_reader::SpliceTime::Timed(t)) =
+                    splice_mode
+                {
                     if let Some(time) = t {
                         let time_ref = mpeg2ts_reader::packet::ClockRef::from_parts(time, 0);
                         if let Some(pcr) = self.last_pcr.as_ref().get() {
@@ -32,8 +34,7 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
                             if diff < 0 {
                                 diff += (std::u64::MAX / 2) as i64;
                             }
-                            print!(" {}ms after most recent PCR",
-                                   diff / 90);
+                            print!(" {}ms after most recent PCR", diff / 90);
                         }
                     }
                 }
@@ -67,7 +68,8 @@ fn is_scte35(pmt: &psi::pmt::PmtSection<'_>) -> bool {
 
 impl Scte35StreamConsumer {
     fn new(last_pcr: Rc<cell::Cell<Option<packet::ClockRef>>>) -> Self {
-        let parser = scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor{ last_pcr });
+        let parser =
+            scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor { last_pcr });
         Scte35StreamConsumer {
             section: psi::SectionPacketConsumer::new(parser),
         }
@@ -115,7 +117,7 @@ impl demultiplex::PacketFilter for PcrWatch {
     }
 }
 
-mpeg2ts_reader::packet_filter_switch!{
+mpeg2ts_reader::packet_filter_switch! {
     DumpFilterSwitch<DumpDemuxContext> {
         Pat: demultiplex::PatPacketFilter<DumpDemuxContext>,
         Pmt: demultiplex::PmtPacketFilter<DumpDemuxContext>,
@@ -162,17 +164,18 @@ impl demultiplex::DemuxContext for DumpDemuxContext {
                 stream_type: StreamType::Private(0x86),
                 pmt,
                 stream_info,
-            } => {
-                Scte35StreamConsumer::construct(self.last_pcr(program_pid), program_pid, pmt, stream_info)
-            },
+            } => Scte35StreamConsumer::construct(
+                self.last_pcr(program_pid),
+                program_pid,
+                pmt,
+                stream_info,
+            ),
             demultiplex::FilterRequest::ByStream {
                 program_pid,
                 stream_type: _,
                 pmt: _,
                 stream_info: _,
-            } => {
-                DumpFilterSwitch::Pcr(PcrWatch(self.last_pcr(program_pid)))
-            },
+            } => DumpFilterSwitch::Pcr(PcrWatch(self.last_pcr(program_pid))),
             demultiplex::FilterRequest::Pmt {
                 pid,
                 program_number,
@@ -180,7 +183,7 @@ impl demultiplex::DemuxContext for DumpDemuxContext {
                 // prepare structure needed to print PCR values later on
                 self.last_pcrs.insert(pid, Rc::new(cell::Cell::new(None)));
                 DumpFilterSwitch::Pmt(demultiplex::PmtPacketFilter::new(pid, program_number))
-            },
+            }
             demultiplex::FilterRequest::Nit { .. } => {
                 DumpFilterSwitch::Null(demultiplex::NullPacketFilter::default())
             }

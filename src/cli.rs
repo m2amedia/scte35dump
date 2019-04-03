@@ -73,39 +73,43 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
                         .help("UDP port to bind to")
                         .takes_value(true)
                         .required(true),
-                ).arg(
+                )
+                .arg(
                     Arg::with_name("bind")
                         .short("b")
                         .long("bind")
                         .takes_value(true)
                         .help("IP address to bind to (defaults to 0.0.0.0)"),
-                ).arg(
+                )
+                .arg(
                     Arg::with_name("mcast")
                         .short("m")
                         .help("Multicast group to join")
                         .takes_value(true)
                         .required(false),
-                ).arg(
+                )
+                .arg(
                     Arg::with_name("ifaddr")
                         .long("ifaddr")
                         .takes_value(true)
                         .help(
                             "IP address of the network interface to be joined to a multicast group",
                         ),
-                ).arg(
+                )
+                .arg(
                     Arg::with_name("fec")
                         .long("fec")
                         .takes_value(true)
                         .value_names(&["prompeg"])
-                        .help(
-                            "Style of Forward Error Correction to apply (no FEC if omitted)",
-                        ),
+                        .help("Style of Forward Error Correction to apply (no FEC if omitted)"),
                 ),
-        ).subcommand(
+        )
+        .subcommand(
             SubCommand::with_name("file")
                 .about("Read a transport stream from the named file")
                 .arg(Arg::with_name("NAME").required(true)),
-        ).subcommand(
+        )
+        .subcommand(
             SubCommand::with_name("section")
                 .about("Decode a single splice_info section value given on the command line")
                 .arg(
@@ -114,18 +118,21 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
                         .long("base64")
                         .takes_value(false)
                         .required(false),
-                ).arg(
+                )
+                .arg(
                     Arg::with_name("hex")
                         .help("The provided section data is hexidecimal encoded")
                         .long("hex")
                         .takes_value(false)
                         .required(false),
-                ).arg(
+                )
+                .arg(
                     Arg::with_name("SECTION")
                         .help("A SCTE-35 splice_info section value")
                         .required(true),
                 ),
-        ).get_matches();
+        )
+        .get_matches();
 
     let cmd = if let Some(matches) = matches.subcommand_matches("net") {
         let addr = match matches.value_of("bind") {
