@@ -42,6 +42,7 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
     Ok(())
 }
 fn main() {
+    env_logger::init();
     match cli::cli() {
         Err(e) => {
             eprintln!("Invalid command line: {}", e);

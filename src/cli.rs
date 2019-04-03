@@ -6,9 +6,15 @@ pub struct Group {
     pub ifaddr: Ipv4Addr,
 }
 
+pub enum Fec {
+    None,
+    ProMpeg,
+}
+
 pub struct NetCmd {
     pub addr: SocketAddr,
     pub group: Option<Group>,
+    pub fec: Fec,
 }
 
 pub struct FileCmd {
@@ -45,6 +51,14 @@ fn group(matches: &ArgMatches<'_>) -> Option<Group> {
     })
 }
 
+fn fec(matches: &ArgMatches<'_>) -> Fec {
+    match matches.value_of("fec") {
+        Some("prompeg") => Fec::ProMpeg,
+        Some(other) => panic!("unsupported FEC mode {:?}", other),
+        None => Fec::None,
+    }
+}
+
 pub fn cli() -> Result<CommandSpec, &'static str> {
     let matches = App::new("scte35dump")
         .author("David Holroyd")
@@ -77,6 +91,14 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
                         .takes_value(true)
                         .help(
                             "IP address of the network interface to be joined to a multicast group",
+                        ),
+                ).arg(
+                    Arg::with_name("fec")
+                        .long("fec")
+                        .takes_value(true)
+                        .value_names(&["prompeg"])
+                        .help(
+                            "Style of Forward Error Correction to apply (no FEC if omitted)",
                         ),
                 ),
         ).subcommand(
@@ -120,6 +142,7 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
                     .map_err(|_| "invalid port")?,
             ),
             group: group(matches),
+            fec: fec(matches),
         })
     } else if let Some(matches) = matches.subcommand_matches("file") {
         CommandSpec::File(FileCmd {
