@@ -14,7 +14,7 @@ use std::cell;
 use std::rc;
 
 fn file_main(cmd: &cli::FileCmd) -> Result<(), std::io::Error> {
-    let mut f = File::open(&cmd.name).expect(&format!("Problem reading {}", cmd.name));
+    let mut f = File::open(&cmd.name).unwrap_or_else(|_| panic!("Problem reading {}", cmd.name));
     let mut buf = [0u8; 1880 * 1024];
     let mut ctx = mpegts::DumpDemuxContext::new();
     let mut demux = demultiplex::Demultiplex::new(&mut ctx);

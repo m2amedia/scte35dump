@@ -172,9 +172,7 @@ impl demultiplex::DemuxContext for DumpDemuxContext {
             ),
             demultiplex::FilterRequest::ByStream {
                 program_pid,
-                stream_type: _,
-                pmt: _,
-                stream_info: _,
+                ..
             } => DumpFilterSwitch::Pcr(PcrWatch(self.last_pcr(program_pid))),
             demultiplex::FilterRequest::Pmt {
                 pid,
