@@ -49,7 +49,11 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
 
 pub struct Scte35StreamConsumer {
     section: psi::SectionPacketConsumer<
-        scte35_reader::Scte35SectionProcessor<DumpSpliceInfoProcessor, DumpDemuxContext>,
+        psi::CompactSyntaxSectionProcessor<
+            psi::BufferCompactSyntaxParser<
+                scte35_reader::Scte35SectionProcessor<DumpSpliceInfoProcessor, DumpDemuxContext>,
+            >
+        >
     >,
 }
 
@@ -71,7 +75,7 @@ impl Scte35StreamConsumer {
         let parser =
             scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor { last_pcr });
         Scte35StreamConsumer {
-            section: psi::SectionPacketConsumer::new(parser),
+            section: psi::SectionPacketConsumer::new(psi::CompactSyntaxSectionProcessor::new(psi::BufferCompactSyntaxParser::new(parser))),
         }
     }
 

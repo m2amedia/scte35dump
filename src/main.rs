@@ -1,6 +1,6 @@
 #![deny(rust_2018_idioms, future_incompatible)]
 
-use mpeg2ts_reader::psi::SectionProcessor;
+use mpeg2ts_reader::psi::WholeCompactSyntaxPayloadParser;
 use std::fs::File;
 use std::io::Read;
 
@@ -40,7 +40,7 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
     });
     let header = psi::SectionCommonHeader::new(&data[..psi::SectionCommonHeader::SIZE]);
     let mut ctx = mpegts::DumpDemuxContext::new();
-    parser.start_section(&mut ctx, &header, &data[..]);
+    parser.section(&mut ctx, &header, &data[..]);
     Ok(())
 }
 fn main() {
