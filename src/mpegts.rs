@@ -52,8 +52,8 @@ pub struct Scte35StreamConsumer {
         psi::CompactSyntaxSectionProcessor<
             psi::BufferCompactSyntaxParser<
                 scte35_reader::Scte35SectionProcessor<DumpSpliceInfoProcessor, DumpDemuxContext>,
-            >
-        >
+            >,
+        >,
     >,
 }
 
@@ -75,7 +75,9 @@ impl Scte35StreamConsumer {
         let parser =
             scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor { last_pcr });
         Scte35StreamConsumer {
-            section: psi::SectionPacketConsumer::new(psi::CompactSyntaxSectionProcessor::new(psi::BufferCompactSyntaxParser::new(parser))),
+            section: psi::SectionPacketConsumer::new(psi::CompactSyntaxSectionProcessor::new(
+                psi::BufferCompactSyntaxParser::new(parser),
+            )),
         }
     }
 
@@ -174,10 +176,9 @@ impl demultiplex::DemuxContext for DumpDemuxContext {
                 pmt,
                 stream_info,
             ),
-            demultiplex::FilterRequest::ByStream {
-                program_pid,
-                ..
-            } => DumpFilterSwitch::Pcr(PcrWatch(self.last_pcr(program_pid))),
+            demultiplex::FilterRequest::ByStream { program_pid, .. } => {
+                DumpFilterSwitch::Pcr(PcrWatch(self.last_pcr(program_pid)))
+            }
             demultiplex::FilterRequest::Pmt {
                 pid,
                 program_number,
