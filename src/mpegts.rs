@@ -1,8 +1,6 @@
 use mpeg2ts_reader::demultiplex;
-use mpeg2ts_reader::descriptor;
 use mpeg2ts_reader::packet;
 use mpeg2ts_reader::psi;
-use mpeg2ts_reader::StreamType;
 use scte35_reader;
 use std::cell;
 use std::collections::HashMap;
@@ -42,7 +40,7 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
         }
         println!();
         for d in &descriptors {
-            println!(" - {:?}", d);
+            println!(" - {:#?}", d);
         }
     }
 }
@@ -55,19 +53,6 @@ pub struct Scte35StreamConsumer {
             >,
         >,
     >,
-}
-
-/// Check for registration descriptor per SCTE-35, section 8.1
-fn is_scte35(pmt: &psi::pmt::PmtSection<'_>) -> bool {
-    for d in pmt.descriptors() {
-        if let Ok(descriptor::CoreDescriptors::Registration(
-            descriptor::registration::RegistrationDescriptor { buf: b"CUEI" },
-        )) = d
-        {
-            return true;
-        }
-    }
-    false
 }
 
 impl Scte35StreamConsumer {
@@ -87,7 +72,7 @@ impl Scte35StreamConsumer {
         pmt: &psi::pmt::PmtSection<'_>,
         stream_info: &psi::pmt::StreamInfo<'_>,
     ) -> DumpFilterSwitch {
-        if is_scte35(pmt) {
+        if scte35_reader::is_scte35(pmt) {
             println!(
                 "Program {:?}: Found SCTE-35 data on {:?} ({:#x})",
                 program_pid,
@@ -167,7 +152,7 @@ impl demultiplex::DemuxContext for DumpDemuxContext {
             }
             demultiplex::FilterRequest::ByStream {
                 program_pid,
-                stream_type: StreamType::Private(0x86),
+                stream_type: scte35_reader::SCTE35_STREAM_TYPE,
                 pmt,
                 stream_info,
             } => Scte35StreamConsumer::construct(
