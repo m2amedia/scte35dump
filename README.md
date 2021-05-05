@@ -45,7 +45,7 @@ scte35dump file test-dump.ts
 
 ## The `net` subcommand
 
-Dump from an RTP multicast stream
+Dump from an RTP multicast stream (add the `--udp` option to use plain UDP without RTP encapsulation).
 
 ```
 $ scte35dump net -m 234.10.10.1 -p 5001 --ifaddr 192.168.0.11
