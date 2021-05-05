@@ -20,15 +20,6 @@ dependencies = [
 
 [[package]]
 name = "arrayvec"
-version = "0.4.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd9fd44efafa8690358b7408d253adf110036b88f55672a933f01d616ad9b1b9"
-dependencies = [
- "nodrop",
-]
-
-[[package]]
-name = "arrayvec"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "23b62fc65de8e4e7f52534fb52b0f3ed04746ae267519eef2a83941e8085068b"
@@ -243,7 +234,7 @@ version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e40283dadb02f3af778878be1d717b17b4e4ab92e1d935ab03a730b0542905f2"
 dependencies = [
- "arrayvec 0.5.2",
+ "arrayvec",
  "itertools",
 ]
 
@@ -371,12 +362,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nodrop"
-version = "0.1.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72ef4a56884ca558e5ddb05a1d1e7e1bfd9a68d9ed024c21704cc98872dae1bb"
-
-[[package]]
 name = "percent-encoding"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -437,12 +422,6 @@ checksum = "24d5f089152e60f62d28b835fbff2cd2e8dc0baf1ac13343bef92ab7eed84548"
 
 [[package]]
 name = "rtp-rs"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e78db1179f207610e377451c3e81cfe177cc101a738430c9bc400729563c598c"
-
-[[package]]
-name = "rtp-rs"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e1110d695193d446e901de09921ffbf2d86ae351bbfde9c5b53863ce177e17f5"
@@ -486,7 +465,7 @@ dependencies = [
  "mio",
  "mpeg2ts-reader",
  "net2",
- "rtp-rs 0.5.0",
+ "rtp-rs",
  "scte35-reader",
  "smpte2022-1-fec",
 ]
@@ -552,23 +531,23 @@ checksum = "c111b5bd5695e56cffe5129854aa230b39c93a305372fdbb2668ca2394eea9f8"
 
 [[package]]
 name = "smpte2022-1-fec"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a45b5abe964cda89ae483c4d4329c811fc10006a80b92b6073c4b7e16e95eba"
+checksum = "1f0878b774d6805b13f93386006c4a2712cc7517d36d86a8fb89ec8851d437d7"
 dependencies = [
- "arrayvec 0.4.12",
+ "arrayvec",
  "log",
- "rtp-rs 0.3.0",
+ "rtp-rs",
  "smpte2022-1-packet",
 ]
 
 [[package]]
 name = "smpte2022-1-packet"
-version = "0.4.0"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "38b70f1703023f4586c481c0c04c4ddc2ac00e0d3121c2c97e5c319b09efcd21"
+checksum = "b7cf57b46460a7a680d7eb461c2d494749f0ecd3717ff988f52c7a527ac77c1a"
 dependencies = [
- "rtp-rs 0.3.0",
+ "rtp-rs",
 ]
 
 [[package]]
