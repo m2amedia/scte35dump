@@ -15,6 +15,7 @@ pub struct NetCmd {
     pub addr: SocketAddr,
     pub group: Option<Group>,
     pub fec: Fec,
+    pub udpts: bool,
 }
 
 pub struct FileCmd {
@@ -66,6 +67,14 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
         .subcommand(
             SubCommand::with_name("net")
                 .about("Read an RTP-encapsulated transport stream from the network")
+                .arg(
+                    Arg::with_name("udp")
+                        .short("u")
+                        .long("udp")
+                        .help("Use TS over UDP transport")
+                        .takes_value(false)
+                        .required(false),
+                )
                 .arg(
                     Arg::with_name("port")
                         .short("p")
@@ -139,6 +148,11 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
             Some(a) => a,
             None => "0.0.0.0",
         };
+        let udp = if matches.is_present("udp") {
+            true
+        } else {
+            false
+        };
         CommandSpec::Net(NetCmd {
             addr: SocketAddr::new(
                 addr.parse().map_err(|_| "invalid bind address")?,
@@ -150,6 +164,7 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
             ),
             group: group(matches),
             fec: fec(matches),
+            udpts: udp,
         })
     } else if let Some(matches) = matches.subcommand_matches("file") {
         CommandSpec::File(FileCmd {

@@ -13,11 +13,34 @@ use std::net;
 
 pub fn main(cmd: &cli::NetCmd) {
     let sock = create_socket(cmd, cmd.addr.port()).expect("Failed to create socket");
-    match cmd.fec {
-        cli::Fec::None => simple_main(sock),
-        cli::Fec::ProMpeg => fec_main(sock, cmd).unwrap(),
+    if cmd.udpts == true {
+        udpts_main(sock)
+    } else {
+        match cmd.fec {
+            cli::Fec::None => simple_main(sock),
+            cli::Fec::ProMpeg => fec_main(sock, cmd).unwrap(),
+        }
     }
 }
+
+fn udpts_main(sock: std::net::UdpSocket) {
+    let mut buf = Vec::new();
+    buf.resize(9000, 0);
+    let mut ctx = mpegts::DumpDemuxContext::new();
+    let mut demux = demultiplex::Demultiplex::new(&mut ctx);
+    loop {
+        match sock.recv_from(&mut buf[..]) {
+            Ok((size, addr)) => {
+                demux.push(&mut ctx,&buf[..size])
+            }
+            Err(e) => {
+                println!("recv_from() error: {:?}", e);
+                return;
+            }
+        }
+    }
+}
+
 
 /// Simple loop that blocks in recv_from() (which minimises the number of syscalls vs. something
 /// that also does select/epoll/etc in addition to calling recv_from().
