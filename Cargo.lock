@@ -402,6 +402,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e1110d695193d446e901de09921ffbf2d86ae351bbfde9c5b53863ce177e17f5"
 
 [[package]]
+name = "rtp-rs"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4ed274a5b3d36c4434cff6a4de1b42f43e64ae326b1cfa72d13d9037a314355"
+
+[[package]]
 name = "rustc_version"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -438,7 +444,7 @@ dependencies = [
  "mio",
  "mpeg2ts-reader",
  "net2",
- "rtp-rs",
+ "rtp-rs 0.6.0",
  "scte35-reader",
  "smpte2022-1-fec",
 ]
@@ -510,7 +516,7 @@ checksum = "1f0878b774d6805b13f93386006c4a2712cc7517d36d86a8fb89ec8851d437d7"
 dependencies = [
  "arrayvec",
  "log",
- "rtp-rs",
+ "rtp-rs 0.5.0",
  "smpte2022-1-packet",
 ]
 
@@ -520,7 +526,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b7cf57b46460a7a680d7eb461c2d494749f0ecd3717ff988f52c7a527ac77c1a"
 dependencies = [
- "rtp-rs",
+ "rtp-rs 0.5.0",
 ]
 
 [[package]]
