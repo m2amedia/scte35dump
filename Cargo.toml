@@ -19,7 +19,7 @@ base64 = "0.13"
 scte35-reader = "0.13"
 smpte2022-1-fec = "0.3"
 mio = "0.6"
-env_logger = "0.8"
+env_logger = "0.9"
 
 [profile.release]
 # for profiling,
