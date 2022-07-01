@@ -350,6 +350,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "mpeg2ts-reader"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f55ded292fa8dd96b970d33f2ef51b13a3dc4b120a9d4e0f1e42f6d24d187517"
+dependencies = [
+ "encoding",
+ "fixedbitset",
+ "log",
+ "smptera-format-identifiers-rust",
+]
+
+[[package]]
 name = "net2"
 version = "0.2.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -455,7 +467,7 @@ dependencies = [
  "bitreader",
  "hex-slice",
  "log",
- "mpeg2ts-reader",
+ "mpeg2ts-reader 0.14.0",
  "serde",
  "serde_derive",
  "serdebug",
@@ -472,7 +484,7 @@ dependencies = [
  "env_logger",
  "hex",
  "mio",
- "mpeg2ts-reader",
+ "mpeg2ts-reader 0.15.0",
  "net2",
  "rtp-rs 0.6.0",
  "scte35-reader",
