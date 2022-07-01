@@ -38,7 +38,7 @@ pub enum CommandSpec {
     Section(SectCmd),
 }
 
-fn group(matches: &ArgMatches<'_>) -> Option<Group> {
+fn group(matches: &ArgMatches) -> Option<Group> {
     matches.value_of("mcast").map(|mcast| {
         let ifaddr = if let Some(addr) = matches.value_of("ifaddr") {
             addr.parse().unwrap()
@@ -52,7 +52,7 @@ fn group(matches: &ArgMatches<'_>) -> Option<Group> {
     })
 }
 
-fn fec(matches: &ArgMatches<'_>) -> Fec {
+fn fec(matches: &ArgMatches) -> Fec {
     match matches.value_of("fec") {
         Some("prompeg") => Fec::ProMpeg,
         Some(other) => panic!("unsupported FEC mode {:?}", other),
@@ -69,7 +69,7 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
                 .about("Read an RTP-encapsulated transport stream from the network")
                 .arg(
                     Arg::with_name("udp")
-                        .short("u")
+                        .short('u')
                         .long("udp")
                         .help("Use TS over UDP transport")
                         .takes_value(false)
@@ -77,7 +77,7 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
                 )
                 .arg(
                     Arg::with_name("port")
-                        .short("p")
+                        .short('p')
                         .long("port")
                         .help("UDP port to bind to")
                         .takes_value(true)
@@ -85,14 +85,14 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
                 )
                 .arg(
                     Arg::with_name("bind")
-                        .short("b")
+                        .short('b')
                         .long("bind")
                         .takes_value(true)
                         .help("IP address to bind to (defaults to 0.0.0.0)"),
                 )
                 .arg(
                     Arg::with_name("mcast")
-                        .short("m")
+                        .short('m')
                         .help("Multicast group to join")
                         .takes_value(true)
                         .required(false),
