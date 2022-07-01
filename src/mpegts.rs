@@ -5,8 +5,10 @@ use scte35_reader;
 use std::cell;
 use std::collections::HashMap;
 use std::rc::Rc;
+use mpeg2ts_reader::packet::Pid;
 
 pub struct DumpSpliceInfoProcessor {
+    pub elementary_pid: Option<Pid>,
     pub last_pcr: Rc<cell::Cell<Option<packet::ClockRef>>>,
 }
 impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
@@ -16,6 +18,9 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
         command: scte35_reader::SpliceCommand,
         descriptors: scte35_reader::SpliceDescriptors<'_>,
     ) {
+        if let Some(elementary_pid) = self.elementary_pid {
+            print!("{:?} ", elementary_pid);
+        }
         if let Some(pcr) = self.last_pcr.as_ref().get() {
             print!("Last {:?}: ", pcr)
         }
@@ -56,9 +61,12 @@ pub struct Scte35StreamConsumer {
 }
 
 impl Scte35StreamConsumer {
-    fn new(last_pcr: Rc<cell::Cell<Option<packet::ClockRef>>>) -> Self {
+    fn new(elementary_pid: Pid, last_pcr: Rc<cell::Cell<Option<packet::ClockRef>>>) -> Self {
         let parser =
-            scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor { last_pcr });
+            scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor {
+                elementary_pid: Some(elementary_pid),
+                last_pcr
+            });
         Scte35StreamConsumer {
             section: psi::SectionPacketConsumer::new(psi::CompactSyntaxSectionProcessor::new(
                 psi::BufferCompactSyntaxParser::new(parser),
@@ -79,7 +87,7 @@ impl Scte35StreamConsumer {
                 stream_info.elementary_pid(),
                 u16::from(stream_info.elementary_pid())
             );
-            DumpFilterSwitch::Scte35(Scte35StreamConsumer::new(last_pcr))
+            DumpFilterSwitch::Scte35(Scte35StreamConsumer::new(stream_info.elementary_pid(), last_pcr))
         } else {
             println!("Program {:?}: {:?} has type {:?}, but PMT lacks 'CUEI' registration_descriptor that would indicate SCTE-35 content",
                      program_pid,

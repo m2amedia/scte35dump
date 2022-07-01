@@ -36,6 +36,7 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
             .map_err(|e| format!("hex decoding problem: {:?}", e))?,
     };
     let mut parser = scte35_reader::Scte35SectionProcessor::new(mpegts::DumpSpliceInfoProcessor {
+        elementary_pid: None,
         last_pcr: rc::Rc::new(cell::Cell::new(None)),
     });
     let header = psi::SectionCommonHeader::new(&data[..psi::SectionCommonHeader::SIZE]);
