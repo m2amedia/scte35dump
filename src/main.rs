@@ -8,6 +8,7 @@ mod cli;
 mod mpegts;
 mod net;
 
+use base64::Engine as _;
 use mpeg2ts_reader::demultiplex;
 use mpeg2ts_reader::psi;
 use std::cell;
@@ -30,8 +31,12 @@ fn file_main(cmd: &cli::FileCmd) -> Result<(), std::io::Error> {
 
 fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
     let data = match cmd.encoding {
-        cli::SectEncoding::Base64 => base64::decode(cmd.value.as_bytes())
-            .map_err(|e| format!("base64 decoding problem: {:?}", e))?,
+        cli::SectEncoding::Base64 => base64::engine::GeneralPurpose::new(
+            &base64::alphabet::STANDARD,
+            base64::engine::general_purpose::PAD,
+        )
+        .decode(cmd.value.as_bytes())
+        .map_err(|e| format!("base64 decoding problem: {:?}", e))?,
         cli::SectEncoding::Hex => hex::decode(cmd.value.as_bytes())
             .map_err(|e| format!("hex decoding problem: {:?}", e))?,
     };
