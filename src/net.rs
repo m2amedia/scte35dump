@@ -30,7 +30,7 @@ fn udpts_main(sock: std::net::UdpSocket) {
     let mut demux = demultiplex::Demultiplex::new(&mut ctx);
     loop {
         match sock.recv_from(&mut buf[..]) {
-            Ok((size, addr)) => demux.push(&mut ctx, &buf[..size]),
+            Ok((size, _addr)) => demux.push(&mut ctx, &buf[..size]),
             Err(e) => {
                 println!("recv_from() error: {:?}", e);
                 return;
