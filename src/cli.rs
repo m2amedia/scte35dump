@@ -105,7 +105,7 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
                         Arg::new("fec")
                             .long("fec")
                             .num_args(1)
-                            .value_names(&["prompeg"])
+                            .value_names(["prompeg"])
                             .help("Style of Forward Error Correction to apply (no FEC if omitted)"),
                     ),
             )

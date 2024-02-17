@@ -2,7 +2,7 @@ use mpeg2ts_reader::demultiplex;
 use mpeg2ts_reader::packet;
 use mpeg2ts_reader::packet::Pid;
 use mpeg2ts_reader::psi;
-use scte35_reader;
+
 use std::cell;
 use std::collections::HashMap;
 use std::rc::Rc;
@@ -25,22 +25,23 @@ impl scte35_reader::SpliceInfoProcessor for DumpSpliceInfoProcessor {
             print!("Last {:?}: ", pcr)
         }
         print!("{:?} {:#?}", header, command);
-        if let scte35_reader::SpliceCommand::SpliceInsert { splice_detail, .. } = command {
-            if let scte35_reader::SpliceInsert::Insert { splice_mode, .. } = splice_detail {
-                if let scte35_reader::SpliceMode::Program(scte35_reader::SpliceTime::Timed(t)) =
-                    splice_mode
-                {
-                    if let Some(time) = t {
-                        let time_ref = mpeg2ts_reader::packet::ClockRef::from_parts(time, 0);
-                        if let Some(pcr) = self.last_pcr.as_ref().get() {
-                            let mut diff = time_ref.base() as i64 - pcr.base() as i64;
-                            if diff < 0 {
-                                diff += (std::u64::MAX / 2) as i64;
-                            }
-                            print!(" {}ms after most recent PCR", diff / 90);
-                        }
-                    }
+        if let scte35_reader::SpliceCommand::SpliceInsert {
+            splice_detail:
+                scte35_reader::SpliceInsert::Insert {
+                    splice_mode:
+                        scte35_reader::SpliceMode::Program(scte35_reader::SpliceTime::Timed(Some(time))),
+                    ..
+                },
+            ..
+        } = command
+        {
+            let time_ref = mpeg2ts_reader::packet::ClockRef::from_parts(time, 0);
+            if let Some(pcr) = self.last_pcr.as_ref().get() {
+                let mut diff = time_ref.base() as i64 - pcr.base() as i64;
+                if diff < 0 {
+                    diff += (std::u64::MAX / 2) as i64;
                 }
+                print!(" {}ms after most recent PCR", diff / 90);
             }
         }
         println!();

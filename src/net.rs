@@ -13,7 +13,7 @@ use std::net;
 
 pub fn main(cmd: &cli::NetCmd) {
     let sock = create_socket(cmd, cmd.addr.port()).expect("Failed to create socket");
-    if cmd.udpts == true {
+    if cmd.udpts {
         udpts_main(sock)
     } else {
         match cmd.fec {
@@ -24,8 +24,7 @@ pub fn main(cmd: &cli::NetCmd) {
 }
 
 fn udpts_main(sock: std::net::UdpSocket) {
-    let mut buf = Vec::new();
-    buf.resize(9000, 0);
+    let mut buf = vec![0; 9000];
     let mut ctx = mpegts::DumpDemuxContext::new();
     let mut demux = demultiplex::Demultiplex::new(&mut ctx);
     loop {
@@ -42,8 +41,7 @@ fn udpts_main(sock: std::net::UdpSocket) {
 /// Simple loop that blocks in recv_from() (which minimises the number of syscalls vs. something
 /// that also does select/epoll/etc in addition to calling recv_from().
 fn simple_main(sock: std::net::UdpSocket) {
-    let mut buf = Vec::new();
-    buf.resize(9000, 0);
+    let mut buf = vec![0; 9000];
     let mut ctx = mpegts::DumpDemuxContext::new();
     let mut demux = demultiplex::Demultiplex::new(&mut ctx);
     let mut expected = None;
@@ -88,7 +86,7 @@ struct ScteFecReceiver {
 impl Receiver<HeapPacket> for ScteFecReceiver {
     fn receive(&mut self, packets: impl Iterator<Item = (HeapPacket, PacketStatus)>) {
         for (pk, _pk_status) in packets {
-            let rtp = rtp_rs::RtpReader::new(&pk.payload());
+            let rtp = rtp_rs::RtpReader::new(pk.payload());
             match rtp {
                 Ok(rtp) => {
                     let this_seq = rtp.sequence_number();
