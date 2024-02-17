@@ -18,7 +18,7 @@ hex = "0.4"
 base64 = "0.21"
 scte35-reader = "0.14"
 smpte2022-1-fec = "0.3"
-mio = "0.8"
+mio = { version = "0.8", features = ["os-poll", "net"] }
 env_logger = "0.10"
 
 [profile.release]

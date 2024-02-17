@@ -126,16 +126,14 @@ fn fec_main(main_sock: std::net::UdpSocket, cmd: &cli::NetCmd) -> Result<(), std
     const PACKET_SIZE_MAX: usize = 1500;
     const PACKET_COUNT_MAX: usize = 10 * 10 * 2 + 4 + 25;
 
-    let main_sock =
-        mio::net::UdpSocket::from_socket(main_sock).expect("Failed to create main socket");
-    let fec_one = mio::net::UdpSocket::from_socket(
-        create_socket(cmd, cmd.addr.port() + 2).expect("Failed to create FEC socket"),
-    )
-    .expect("Failed to create FEC socket");
-    let fec_two = mio::net::UdpSocket::from_socket(
-        create_socket(cmd, cmd.addr.port() + 4).expect("Failed to create FEC socket"),
-    )
-    .expect("Failed to create FEC socket");
+    main_sock.set_nonblocking(true).expect("set_nonblocking");
+    let mut main_sock = mio::net::UdpSocket::from_std(main_sock);
+    let fec_one = create_socket(cmd, cmd.addr.port() + 2).expect("Failed to create FEC socket");
+    fec_one.set_nonblocking(true).expect("set_nonblocking");
+    let mut fec_one = mio::net::UdpSocket::from_std(fec_one);
+    let fec_two = create_socket(cmd, cmd.addr.port() + 4).expect("Failed to create FEC socket");
+    fec_two.set_nonblocking(true).expect("set_nonblocking");
+    let mut fec_two = mio::net::UdpSocket::from_std(fec_two);
 
     let buffer_pool = HeapPool::new(PACKET_COUNT_MAX, PACKET_SIZE_MAX);
     let mut ctx = mpegts::DumpDemuxContext::new();
@@ -147,24 +145,21 @@ fn fec_main(main_sock: std::net::UdpSocket, cmd: &cli::NetCmd) -> Result<(), std
     };
     let mut decoder = Decoder::new(buffer_pool.clone(), recv);
 
-    let poll = mio::Poll::new()?;
-    poll.register(
-        &main_sock,
+    let mut poll = mio::Poll::new()?;
+    poll.registry().register(
+        &mut main_sock,
         MAIN,
-        mio::Ready::readable(),
-        mio::PollOpt::edge(),
+        mio::Interest::READABLE,
     )?;
-    poll.register(
-        &fec_one,
+    poll.registry().register(
+        &mut fec_one,
         FEC_ONE,
-        mio::Ready::readable(),
-        mio::PollOpt::edge(),
+        mio::Interest::READABLE,
     )?;
-    poll.register(
-        &fec_two,
+    poll.registry().register(
+        &mut fec_two,
         FEC_TWO,
-        mio::Ready::readable(),
-        mio::PollOpt::edge(),
+        mio::Interest::READABLE,
     )?;
 
     let mut events = mio::Events::with_capacity(1024);
