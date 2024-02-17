@@ -30,9 +30,7 @@ fn udpts_main(sock: std::net::UdpSocket) {
     let mut demux = demultiplex::Demultiplex::new(&mut ctx);
     loop {
         match sock.recv_from(&mut buf[..]) {
-            Ok((size, addr)) => {
-                demux.push(&mut ctx,&buf[..size])
-            }
+            Ok((size, addr)) => demux.push(&mut ctx, &buf[..size]),
             Err(e) => {
                 println!("recv_from() error: {:?}", e);
                 return;
@@ -40,7 +38,6 @@ fn udpts_main(sock: std::net::UdpSocket) {
         }
     }
 }
-
 
 /// Simple loop that blocks in recv_from() (which minimises the number of syscalls vs. something
 /// that also does select/epoll/etc in addition to calling recv_from().
@@ -146,21 +143,12 @@ fn fec_main(main_sock: std::net::UdpSocket, cmd: &cli::NetCmd) -> Result<(), std
     let mut decoder = Decoder::new(buffer_pool.clone(), recv);
 
     let mut poll = mio::Poll::new()?;
-    poll.registry().register(
-        &mut main_sock,
-        MAIN,
-        mio::Interest::READABLE,
-    )?;
-    poll.registry().register(
-        &mut fec_one,
-        FEC_ONE,
-        mio::Interest::READABLE,
-    )?;
-    poll.registry().register(
-        &mut fec_two,
-        FEC_TWO,
-        mio::Interest::READABLE,
-    )?;
+    poll.registry()
+        .register(&mut main_sock, MAIN, mio::Interest::READABLE)?;
+    poll.registry()
+        .register(&mut fec_one, FEC_ONE, mio::Interest::READABLE)?;
+    poll.registry()
+        .register(&mut fec_two, FEC_TWO, mio::Interest::READABLE)?;
 
     let mut events = mio::Events::with_capacity(1024);
     loop {

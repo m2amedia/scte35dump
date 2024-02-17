@@ -61,87 +61,83 @@ fn fec(matches: &ArgMatches) -> Fec {
 }
 
 pub fn cli() -> Result<CommandSpec, &'static str> {
-    let matches = Command::new("scte35dump")
-        .author("David Holroyd")
-        .about("Extract SCTE-35 information from MPEG Transport Streams")
-        .subcommand(
-            Command::new("net")
-                .about("Read an RTP-encapsulated transport stream from the network")
-                .arg(
-                    Arg::new("udp")
-                        .short('u')
-                        .long("udp")
-                        .help("Use TS over UDP transport")
-                        .num_args(0)
-                        .required(false),
-                )
-                .arg(
-                    Arg::new("port")
-                        .short('p')
-                        .long("port")
-                        .help("UDP port to bind to")
-                        .num_args(1)
-                        .required(true),
-                )
-                .arg(
-                    Arg::new("bind")
-                        .short('b')
-                        .long("bind")
-                        .num_args(1)
-                        .help("IP address to bind to (defaults to 0.0.0.0)"),
-                )
-                .arg(
-                    Arg::new("mcast")
-                        .short('m')
-                        .help("Multicast group to join")
-                        .num_args(1)
-                        .required(false),
-                )
-                .arg(
-                    Arg::new("ifaddr")
-                        .long("ifaddr")
-                        .num_args(1)
-                        .help(
-                            "IP address of the network interface to be joined to a multicast group",
-                        ),
-                )
-                .arg(
-                    Arg::new("fec")
-                        .long("fec")
-                        .num_args(1)
-                        .value_names(&["prompeg"])
-                        .help("Style of Forward Error Correction to apply (no FEC if omitted)"),
-                ),
-        )
-        .subcommand(
-            Command::new("file")
-                .about("Read a transport stream from the named file")
-                .arg(Arg::new("NAME").required(true)),
-        )
-        .subcommand(
-            Command::new("section")
-                .about("Decode a single splice_info section value given on the command line")
-                .arg(
-                    Arg::new("base64")
-                        .help("The provided section data is base64 encoded")
-                        .long("base64")
-                        .num_args(0)
-                        .required(false),
-                )
-                .arg(
-                    Arg::new("hex")
-                        .help("The provided section data is hexidecimal encoded")
-                        .long("hex")
-                        .num_args(0)
-                        .required(false),
-                )
-                .arg(
-                    Arg::new("SECTION")
-                        .help("A SCTE-35 splice_info section value")
-                        .required(true),
-                ),
-        )
-        .get_matches();
+    let matches =
+        Command::new("scte35dump")
+            .author("David Holroyd")
+            .about("Extract SCTE-35 information from MPEG Transport Streams")
+            .subcommand(
+                Command::new("net")
+                    .about("Read an RTP-encapsulated transport stream from the network")
+                    .arg(
+                        Arg::new("udp")
+                            .short('u')
+                            .long("udp")
+                            .help("Use TS over UDP transport")
+                            .num_args(0)
+                            .required(false),
+                    )
+                    .arg(
+                        Arg::new("port")
+                            .short('p')
+                            .long("port")
+                            .help("UDP port to bind to")
+                            .num_args(1)
+                            .required(true),
+                    )
+                    .arg(
+                        Arg::new("bind")
+                            .short('b')
+                            .long("bind")
+                            .num_args(1)
+                            .help("IP address to bind to (defaults to 0.0.0.0)"),
+                    )
+                    .arg(
+                        Arg::new("mcast")
+                            .short('m')
+                            .help("Multicast group to join")
+                            .num_args(1)
+                            .required(false),
+                    )
+                    .arg(Arg::new("ifaddr").long("ifaddr").num_args(1).help(
+                        "IP address of the network interface to be joined to a multicast group",
+                    ))
+                    .arg(
+                        Arg::new("fec")
+                            .long("fec")
+                            .num_args(1)
+                            .value_names(&["prompeg"])
+                            .help("Style of Forward Error Correction to apply (no FEC if omitted)"),
+                    ),
+            )
+            .subcommand(
+                Command::new("file")
+                    .about("Read a transport stream from the named file")
+                    .arg(Arg::new("NAME").required(true)),
+            )
+            .subcommand(
+                Command::new("section")
+                    .about("Decode a single splice_info section value given on the command line")
+                    .arg(
+                        Arg::new("base64")
+                            .help("The provided section data is base64 encoded")
+                            .long("base64")
+                            .num_args(0)
+                            .required(false),
+                    )
+                    .arg(
+                        Arg::new("hex")
+                            .help("The provided section data is hexidecimal encoded")
+                            .long("hex")
+                            .num_args(0)
+                            .required(false),
+                    )
+                    .arg(
+                        Arg::new("SECTION")
+                            .help("A SCTE-35 splice_info section value")
+                            .required(true),
+                    ),
+            )
+            .get_matches();
 
     let cmd = if let Some(matches) = matches.subcommand_matches("net") {
         let addr = match matches.get_one::<String>("bind") {

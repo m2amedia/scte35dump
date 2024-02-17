@@ -1,11 +1,11 @@
 use mpeg2ts_reader::demultiplex;
 use mpeg2ts_reader::packet;
+use mpeg2ts_reader::packet::Pid;
 use mpeg2ts_reader::psi;
 use scte35_reader;
 use std::cell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use mpeg2ts_reader::packet::Pid;
 
 pub struct DumpSpliceInfoProcessor {
     pub elementary_pid: Option<Pid>,
@@ -62,11 +62,10 @@ pub struct Scte35StreamConsumer {
 
 impl Scte35StreamConsumer {
     fn new(elementary_pid: Pid, last_pcr: Rc<cell::Cell<Option<packet::ClockRef>>>) -> Self {
-        let parser =
-            scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor {
-                elementary_pid: Some(elementary_pid),
-                last_pcr
-            });
+        let parser = scte35_reader::Scte35SectionProcessor::new(DumpSpliceInfoProcessor {
+            elementary_pid: Some(elementary_pid),
+            last_pcr,
+        });
         Scte35StreamConsumer {
             section: psi::SectionPacketConsumer::new(psi::CompactSyntaxSectionProcessor::new(
                 psi::BufferCompactSyntaxParser::new(parser),
@@ -87,7 +86,10 @@ impl Scte35StreamConsumer {
                 stream_info.elementary_pid(),
                 u16::from(stream_info.elementary_pid())
             );
-            DumpFilterSwitch::Scte35(Scte35StreamConsumer::new(stream_info.elementary_pid(), last_pcr))
+            DumpFilterSwitch::Scte35(Scte35StreamConsumer::new(
+                stream_info.elementary_pid(),
+                last_pcr,
+            ))
         } else {
             println!("Program {:?}: {:?} has type {:?}, but PMT lacks 'CUEI' registration_descriptor that would indicate SCTE-35 content",
                      program_pid,
