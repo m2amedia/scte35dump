@@ -152,9 +152,11 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
         CommandSpec::Net(NetCmd {
             addr: SocketAddr::new(
                 addr.parse().map_err(|_| "invalid bind address")?,
-                *matches
-                    .get_one::<u16>("port")
-                    .unwrap(),
+                matches
+                    .get_one::<String>("port")
+                    .unwrap()
+                    .parse::<u16>()
+                    .map_err(|_| "invalid port")?,
             ),
             group: group(matches),
             fec: fec(matches),
