@@ -1,0 +1,27 @@
+bin.name = "scte35dump"
+args = "section --hex fc302500000000000000fff01405000000017feffe2d142b00fe0123d3080001010100007f157a49"
+stdout = """
+SpliceInfoHeader { protocol_version: 0, encrypted_packet: false, encryption_algorithm: None, pts_adjustment: 0, cw_index: 0, tier: 4095 } SpliceInsert {
+    splice_event_id: 1,
+    reserved: 127,
+    splice_detail: Insert {
+        network_indicator: Out,
+        splice_mode: Program(
+            Timed(
+                Some(
+                    756296448,
+                ),
+            ),
+        ),
+        duration: Some(
+            SpliceDuration {
+                return_mode: Automatic,
+                duration: 19125000,
+            },
+        ),
+        unique_program_id: 1,
+        avail_num: 1,
+        avails_expected: 1,
+    },
+}
+"""

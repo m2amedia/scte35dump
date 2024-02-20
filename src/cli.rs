@@ -1,43 +1,98 @@
-use clap::{Arg, ArgMatches, Command};
-use std::net::{Ipv4Addr, SocketAddr};
+use std::fmt;
+use std::fmt::Formatter;
+use std::str::FromStr;
+use argh::FromArgs;
 
-pub struct Group {
-    pub addr: Ipv4Addr,
-    pub ifaddr: Ipv4Addr,
+/// Extract SCTE-35 information from MPEG Transport Streams
+#[derive(FromArgs, Debug)]
+pub(crate) struct Cli {
+    #[argh(subcommand)]
+    pub nested: CommandSpec,
 }
 
+#[derive(Debug)]
 pub enum Fec {
-    None,
     ProMpeg,
 }
+impl FromStr for Fec {
+    type Err = FecErr;
 
-pub struct NetCmd {
-    pub addr: SocketAddr,
-    pub group: Option<Group>,
-    pub fec: Fec,
-    pub udpts: bool,
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "prompeg" => Ok(Fec::ProMpeg),
+            _ => Err(FecErr(s.to_string()))
+        }
+    }
+}
+impl fmt::Display for Fec {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str("prompeg")
+    }
 }
 
+pub struct FecErr(String);
+impl fmt::Display for FecErr {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        f.write_str("Unsupported Forward Error Correction mode ")?;
+        f.write_str(self.0.as_ref())
+    }
+}
+
+
+/// Read a transport stream from the network
+#[derive(FromArgs, Debug)]
+#[argh(subcommand, name = "net")]
+pub struct NetCmd {
+    /// UDP port to bind to
+    #[argh(option, short = 'p')]
+    pub port: u16,
+    /// multicast group to join
+    #[argh(option, short = 'm')]
+    pub mcast: Option<String>,
+    /// IP address of the network interface to be joined to a multicast group
+    #[argh(option)]
+    pub ifaddr: Option<String>,
+    /// style of Forward Error Correction to apply (no FEC if omitted)
+    #[argh(option)]
+    pub fec: Option<Fec>,
+    /// use TS over UDP transport (detault is TS over RTP)
+    #[argh(switch)]
+    pub udp: bool,
+}
+
+/// Read a transport stream from the named file
+#[derive(FromArgs, PartialEq, Debug)]
+#[argh(subcommand, name = "file")]
 pub struct FileCmd {
+    /// the mpegts file name
+    #[argh(positional)]
     pub name: String,
 }
 
-pub enum SectEncoding {
-    Hex,
-    Base64,
-}
-
+/// Decode a single splice_info section value given on the command line
+#[derive(FromArgs, Debug)]
+#[argh(subcommand, name = "section")]
 pub struct SectCmd {
+    /// the provided section data is hexidecimal encoded
+    #[argh(switch)]
+    pub hex: bool,
+    /// the provided section data is base64 encoded
+    #[argh(switch)]
+    pub base64: bool,
+    /// A SCTE-35 splice_info section value
+    #[argh(positional)]
     pub value: String,
-    pub encoding: SectEncoding,
 }
 
+#[derive(FromArgs, Debug)]
+#[argh(subcommand)]
 pub enum CommandSpec {
     Net(NetCmd),
     File(FileCmd),
     Section(SectCmd),
 }
 
+/*
 fn group(matches: &ArgMatches) -> Option<Group> {
     matches.get_one::<String>("mcast").map(|mcast| {
         let ifaddr = if let Some(addr) = matches.get_one::<String>("ifaddr") {
@@ -180,3 +235,4 @@ pub fn cli() -> Result<CommandSpec, &'static str> {
 
     Ok(cmd)
 }
+*/

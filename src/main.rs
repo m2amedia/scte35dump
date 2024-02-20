@@ -30,15 +30,22 @@ fn file_main(cmd: &cli::FileCmd) -> Result<(), std::io::Error> {
 }
 
 fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
-    let data = match cmd.encoding {
-        cli::SectEncoding::Base64 => base64::engine::GeneralPurpose::new(
+    if cmd.hex && cmd.base64 {
+        return Err("Only specify one of either --base64 or --hex".to_string());
+    }
+    if !cmd.hex && !cmd.base64 {
+        return Err("Specify at least one of either --base64 or --hex".to_string());
+    }
+    let data = if cmd.base64 {
+        base64::engine::GeneralPurpose::new(
             &base64::alphabet::STANDARD,
             base64::engine::general_purpose::PAD,
         )
-        .decode(cmd.value.as_bytes())
-        .map_err(|e| format!("base64 decoding problem: {:?}", e))?,
-        cli::SectEncoding::Hex => hex::decode(cmd.value.as_bytes())
-            .map_err(|e| format!("hex decoding problem: {:?}", e))?,
+            .decode(cmd.value.as_bytes())
+            .map_err(|e| format!("base64 decoding problem: {:?}", e))?
+    } else {
+        hex::decode(cmd.value.as_bytes())
+            .map_err(|e| format!("hex decoding problem: {:?}", e))?
     };
     let mut parser = scte35_reader::Scte35SectionProcessor::new(mpegts::DumpSpliceInfoProcessor {
         elementary_pid: None,
@@ -51,16 +58,12 @@ fn section_main(cmd: &cli::SectCmd) -> Result<(), String> {
 }
 fn main() {
     env_logger::init();
-    match cli::cli() {
-        Err(e) => {
-            eprintln!("Invalid command line: {}", e);
-            ::std::process::exit(1);
-        }
-        Ok(cli::CommandSpec::Net(cmd)) => {
+    match argh::from_env::<cli::Cli>().nested {
+        cli::CommandSpec::Net(cmd) => {
             net::main(&cmd);
         }
-        Ok(cli::CommandSpec::File(cmd)) => file_main(&cmd).expect("file"),
-        Ok(cli::CommandSpec::Section(cmd)) => {
+        cli::CommandSpec::File(cmd) => file_main(&cmd).expect("file"),
+        cli::CommandSpec::Section(cmd) => {
             section_main(&cmd).expect("section");
         }
     }

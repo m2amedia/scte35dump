@@ -12,13 +12,13 @@ use std::io;
 use std::net;
 
 pub fn main(cmd: &cli::NetCmd) {
-    let sock = create_socket(cmd, cmd.addr.port()).expect("Failed to create socket");
-    if cmd.udpts {
+    let sock = create_socket(cmd, cmd.port).expect("Failed to create socket");
+    if cmd.udp {
         udpts_main(sock)
     } else {
         match cmd.fec {
-            cli::Fec::None => simple_main(sock),
-            cli::Fec::ProMpeg => fec_main(sock, cmd).unwrap(),
+            None => simple_main(sock),
+            Some(cli::Fec::ProMpeg) => fec_main(sock, cmd).unwrap(),
         }
     }
 }
@@ -123,10 +123,10 @@ fn fec_main(main_sock: std::net::UdpSocket, cmd: &cli::NetCmd) -> Result<(), std
 
     main_sock.set_nonblocking(true).expect("set_nonblocking");
     let mut main_sock = mio::net::UdpSocket::from_std(main_sock);
-    let fec_one = create_socket(cmd, cmd.addr.port() + 2).expect("Failed to create FEC socket");
+    let fec_one = create_socket(cmd, cmd.port + 2).expect("Failed to create FEC socket");
     fec_one.set_nonblocking(true).expect("set_nonblocking");
     let mut fec_one = mio::net::UdpSocket::from_std(fec_one);
-    let fec_two = create_socket(cmd, cmd.addr.port() + 4).expect("Failed to create FEC socket");
+    let fec_two = create_socket(cmd, cmd.port + 4).expect("Failed to create FEC socket");
     fec_two.set_nonblocking(true).expect("set_nonblocking");
     let mut fec_two = mio::net::UdpSocket::from_std(fec_two);
 
@@ -205,10 +205,21 @@ fn create_socket(cmd: &cli::NetCmd, port: u16) -> Result<std::net::UdpSocket, io
     let udp = net2::UdpBuilder::new_v4()?;
     udp.reuse_address(true)?; // TODO: only if mcast?
 
-    let addr = net::SocketAddr::new(cmd.addr.ip(), port);
+    let addr = match &cmd.ifaddr {
+        Some(a) => a,
+        None => "0.0.0.0",
+    };
+    let addr = net::SocketAddr::new(addr.parse().expect("ifaddr"), port);
     let sock = udp.bind(addr)?;
-    if let Some(ref group) = cmd.group {
-        sock.join_multicast_v4(&group.addr, &group.ifaddr)?;
+
+    if let Some(ref mcast) = cmd.mcast {
+        let ifaddr = if let Some(addr) = &cmd.ifaddr {
+            addr.parse().unwrap()
+        } else {
+            "0.0.0.0".parse().unwrap()
+        };
+
+        sock.join_multicast_v4(&mcast.parse().expect("mcast"), &ifaddr)?;
     }
     Ok(sock)
 }
