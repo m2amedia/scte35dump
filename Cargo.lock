@@ -326,6 +326,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3958af68a31b1d1384d3f39b6aa33eb14b6009065b5ca305ddd9712a4237124f"
 
 [[package]]
+name = "four-cc"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "431a4c31778fde52b4400de34975f219eeca55cc829a9de157cd743a5b230ecb"
+
+[[package]]
 name = "glob"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -430,7 +436,19 @@ dependencies = [
  "encoding",
  "fixedbitset",
  "log",
- "smptera-format-identifiers-rust",
+ "smptera-format-identifiers-rust 0.3.0",
+]
+
+[[package]]
+name = "mpeg2ts-reader"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "915a961c22ff67149317585dd5cf71e808b5b044a3e38b9551ece14879a02904"
+dependencies = [
+ "encoding",
+ "fixedbitset",
+ "log",
+ "smptera-format-identifiers-rust 0.4.0",
 ]
 
 [[package]]
@@ -612,11 +630,11 @@ dependencies = [
  "bitreader",
  "hex-slice",
  "log",
- "mpeg2ts-reader",
+ "mpeg2ts-reader 0.15.0",
  "serde",
  "serde_derive",
  "serdebug",
- "smptera-format-identifiers-rust",
+ "smptera-format-identifiers-rust 0.3.0",
  "url",
 ]
 
@@ -629,7 +647,7 @@ dependencies = [
  "env_logger",
  "hex",
  "mio",
- "mpeg2ts-reader",
+ "mpeg2ts-reader 0.16.0",
  "net2",
  "rtp-rs 0.6.0",
  "scte35-reader",
@@ -741,7 +759,16 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b836b5d148f3abd518961f83a52ceb4817b49b865b89ddecbe7c69551be27f2e"
 dependencies = [
- "four-cc",
+ "four-cc 0.1.0",
+]
+
+[[package]]
+name = "smptera-format-identifiers-rust"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b79962555faf3a7892357f69d0306269cb1b265007957252c843953804884750"
+dependencies = [
+ "four-cc 0.3.0",
 ]
 
 [[package]]

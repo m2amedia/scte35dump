@@ -10,7 +10,7 @@ license = "MIT/Apache-2.0"
 edition = "2018"
 
 [dependencies]
-mpeg2ts-reader = "0.15"
+mpeg2ts-reader = "0.16"
 rtp-rs = "0.6"
 net2 = "0.2"
 clap = "4.5"
