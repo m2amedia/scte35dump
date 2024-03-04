@@ -15,7 +15,7 @@ rtp-rs = "0.6"
 net2 = "0.2"
 clap = "4.5"
 hex = "0.4"
-base64 = "0.21"
+base64 = "0.22"
 scte35-reader = "0.15"
 smpte2022-1-fec = "0.3"
 mio = { version = "0.8", features = ["os-poll", "net"] }
