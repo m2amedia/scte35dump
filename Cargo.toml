@@ -22,7 +22,7 @@ mio = { version = "0.8", features = ["os-poll", "net"] }
 env_logger = "0.11"
 
 [dev-dependencies]
-trycmd = "0.15.4"
+trycmd = "0.15.6"
 
 [profile.release]
 # for profiling,
